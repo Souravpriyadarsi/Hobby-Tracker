@@ -30,17 +30,17 @@ function App() {
 
   if (status === 'error') {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-1 bg-surface p-8 text-center">
-        <p className="text-sm font-medium text-error">Couldn&apos;t load your data</p>
-        <p className="max-w-md text-xs text-on-surface-variant">{errorMsg}</p>
+      <div className="flex h-full flex-col items-center justify-center gap-1 bg-canvas p-8 text-center">
+        <p className="text-[13px] font-medium text-danger-text">Couldn&apos;t load your data</p>
+        <p className="max-w-md text-[11.5px] text-muted">{errorMsg}</p>
       </div>
     )
   }
 
   if (status === 'loading') {
     return (
-      <div className="flex h-full items-center justify-center bg-surface">
-        <p className="text-sm text-on-surface-variant">Loading…</p>
+      <div className="flex h-full items-center justify-center bg-canvas">
+        <p className="text-[12.5px] text-muted">Loading…</p>
       </div>
     )
   }

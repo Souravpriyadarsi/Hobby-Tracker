@@ -1,35 +1,30 @@
 /**
- * Pastel swatches used for hobby accents and chart series.
- * Warm, soft, and deliberately free of purple / navy.
+ * Hobby accents, which double as chart series colours.
+ *
+ * Six slots, assigned in fixed order and never cycled — a seventh hobby folds
+ * into "Other" in charts rather than reusing a hue. The set was validated for
+ * OKLCH lightness band, chroma floor, colour-blind (protan/deutan/tritan)
+ * separation between adjacent slots, and contrast against both the light and
+ * dark card surfaces. Re-run that check before changing any value: an earlier,
+ * airier pastel set had two hobby colours only ΔE 3.2 apart, which is
+ * indistinguishable even with full colour vision.
+ *
+ * Order alternates blue-leaning and yellow-leaning hues, which is what buys the
+ * separation under red-green colour blindness.
  */
 export const HOBBY_COLORS = [
-  '#6FC3A8', // mint
-  '#E9967B', // coral
-  '#E6C170', // butter
-  '#E4A0B4', // rose
-  '#8FCBDD', // sky
-  '#A9CB86', // sage
-  '#DFA97F', // apricot
-  '#CFC095', // sand
-  '#7FC9BE', // aqua
-  '#B9BF93', // olive
+  '#3CA0CA', // sky
+  '#D7735E', // coral
+  '#17A8A9', // teal
+  '#B88C19', // ochre
+  '#CD7397', // rose
+  '#7BA24F', // sage
 ] as const
 
 export const DEFAULT_HOBBY_COLOR = HOBBY_COLORS[0]
 
-/** Series colours for charts, ordered for maximum separation between neighbours. */
-export const CHART_PALETTE = [
-  '#6FC3A8',
-  '#E9967B',
-  '#8FCBDD',
-  '#E6C170',
-  '#A9CB86',
-  '#E4A0B4',
-  '#7FC9BE',
-  '#DFA97F',
-  '#B9BF93',
-  '#CFC095',
-]
+/** Fallback for anything beyond the six slots, and for unknown hobbies. */
+export const OTHER_COLOR = '#6B6B6B'
 
 export const HOBBY_ICONS = [
   '🎯',

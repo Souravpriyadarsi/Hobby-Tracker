@@ -45,7 +45,7 @@ export function HobbyFormModal({ hobby, onClose, onSubmit }: Props) {
       onClose={onClose}
       footer={
         <>
-          <Button variant="text" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
           <Button onClick={submit} disabled={!canSave}>
@@ -54,7 +54,7 @@ export function HobbyFormModal({ hobby, onClose, onSubmit }: Props) {
         </>
       }
     >
-      <div className="space-y-5 pb-1">
+      <div className="space-y-4">
         <TextField
           label="Name"
           autoFocus
@@ -72,10 +72,10 @@ export function HobbyFormModal({ hobby, onClose, onSubmit }: Props) {
                 type="button"
                 onClick={() => setIcon(i)}
                 className={cn(
-                  'h-10 w-10 rounded-full text-lg transition-colors',
+                  'h-8 w-8 rounded-sm text-[15px] transition-colors',
                   icon === i
-                    ? 'bg-primary-container ring-2 ring-primary'
-                    : 'bg-surface-container hover:bg-surface-highest',
+                    ? 'bg-accent-tint ring-1 ring-accent'
+                    : 'bg-well hover:bg-raised',
                 )}
               >
                 {i}
@@ -85,21 +85,24 @@ export function HobbyFormModal({ hobby, onClose, onSubmit }: Props) {
         </FieldGroup>
 
         <FieldGroup label="Colour">
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-wrap gap-2">
             {HOBBY_COLORS.map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => setColor(c)}
                 style={{ backgroundColor: c }}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface transition-transform hover:scale-110"
+                className="flex h-7 w-7 items-center justify-center rounded-sm transition-transform hover:scale-110"
                 aria-label={`Colour ${c}`}
                 aria-pressed={color === c}
               >
-                {color === c && <Check size={16} strokeWidth={3} className="text-black/60" />}
+                {color === c && <Check size={14} strokeWidth={3} className="text-black/65" />}
               </button>
             ))}
           </div>
+          <p className="text-[11px] text-faint">
+            Six colours, chosen so any two hobbies stay distinguishable in charts.
+          </p>
         </FieldGroup>
 
         <TextField
@@ -109,15 +112,15 @@ export function HobbyFormModal({ hobby, onClose, onSubmit }: Props) {
           value={goal}
           onChange={(e) => setGoal(e.target.value)}
           placeholder="e.g. 30"
-          className="w-36"
+          className="w-32"
         />
 
-        <label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-surface-container px-4 py-3 text-sm text-on-surface">
+        <label className="flex cursor-pointer items-center gap-2.5 rounded-sm border border-line bg-well px-3 py-2.5 text-[12.5px] text-ink">
           <input
             type="checkbox"
             checked={trackStreak}
             onChange={(e) => setTrackStreak(e.target.checked)}
-            className="h-4 w-4 rounded accent-primary"
+            className="h-3.5 w-3.5 rounded-xs accent-accent-solid"
           />
           Track streaks &amp; show on the heatmap
         </label>

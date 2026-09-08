@@ -50,3 +50,8 @@ export function parseDurationInput(raw: string): number | null {
 
   return null
 }
+
+/** "1 day" / "3 days" — used anywhere a streak length is shown. */
+export function pluralDays(n: number): string {
+  return `${n} ${n === 1 ? 'day' : 'days'}`
+}

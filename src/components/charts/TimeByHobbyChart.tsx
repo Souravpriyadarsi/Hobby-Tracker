@@ -13,14 +13,20 @@ interface Props {
   height?: number
 }
 
-export function TimeByHobbyChart({ data, height = 210 }: Props) {
+/**
+ * Donut plus a directly-labelled legend. The legend is not decoration: on the
+ * light surface a few series sit just under 3:1 against the card, so the
+ * name/value/share text is what carries identity, not colour alone.
+ */
+export function TimeByHobbyChart({ data, height = 168 }: Props) {
   const t = useChartTheme()
-  const nonZero = data.filter((d) => d.minutes > 0)
+  const slices = data.filter((d) => d.minutes > 0).sort((a, b) => b.minutes - a.minutes)
+  const total = slices.reduce((sum, d) => sum + d.minutes, 0)
 
-  if (nonZero.length === 0) {
+  if (slices.length === 0) {
     return (
       <div
-        className="flex items-center justify-center text-xs text-on-surface-variant"
+        className="flex items-center justify-center text-[11.5px] text-muted"
         style={{ height }}
       >
         No time logged in this range
@@ -30,21 +36,20 @@ export function TimeByHobbyChart({ data, height = 210 }: Props) {
 
   return (
     <div className="flex items-center gap-5" style={{ height }}>
-      <div className="h-full w-1/2 shrink-0">
+      <div className="relative h-full w-[42%] shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={nonZero}
+              data={slices}
               dataKey="minutes"
               nameKey="name"
-              innerRadius="58%"
-              outerRadius="88%"
+              innerRadius="62%"
+              outerRadius="92%"
               // A gap on a single slice leaves a visible notch in the ring.
-              paddingAngle={nonZero.length > 1 ? 3 : 0}
+              paddingAngle={slices.length > 1 ? 2 : 0}
               stroke="none"
-              cornerRadius={nonZero.length > 1 ? 4 : 0}
             >
-              {nonZero.map((d) => (
+              {slices.map((d) => (
                 <Cell key={d.name} fill={d.color} />
               ))}
             </Pie>
@@ -54,23 +59,28 @@ export function TimeByHobbyChart({ data, height = 210 }: Props) {
             />
           </PieChart>
         </ResponsiveContainer>
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-[9.5px] font-semibold tracking-[0.08em] text-muted">TOTAL</span>
+          <span className="num mt-0.5 text-[15px] font-medium text-ink">
+            {formatDuration(total * 60)}
+          </span>
+        </div>
       </div>
-      <ul className="flex-1 space-y-2 overflow-y-auto text-sm">
-        {nonZero
-          .slice()
-          .sort((a, b) => b.minutes - a.minutes)
-          .map((d) => (
-            <li key={d.name} className="flex items-center gap-2.5">
-              <span
-                className="h-3 w-3 shrink-0 rounded-full"
-                style={{ backgroundColor: d.color }}
-              />
-              <span className="truncate text-on-surface">{d.name}</span>
-              <span className="ml-auto shrink-0 font-mono text-xs text-on-surface-variant">
-                {formatDuration(d.minutes * 60)}
-              </span>
-            </li>
-          ))}
+
+      <ul className="flex-1 space-y-2.5 overflow-y-auto">
+        {slices.map((d) => (
+          <li key={d.name} className="flex items-center gap-2.5 text-[12.5px]">
+            <span
+              className="h-1.75 w-1.75 shrink-0 rounded-full"
+              style={{ backgroundColor: d.color }}
+            />
+            <span className="min-w-0 flex-1 truncate text-ink-soft">{d.name}</span>
+            <span className="num shrink-0 text-ink">{formatDuration(d.minutes * 60)}</span>
+            <span className="num w-8 shrink-0 text-right text-[11.5px] text-faint">
+              {Math.round((d.minutes / total) * 100)}%
+            </span>
+          </li>
+        ))}
       </ul>
     </div>
   )

@@ -27,16 +27,16 @@ export function ConfirmDialog({
       onClose={onCancel}
       footer={
         <>
-          <Button variant="text" onClick={onCancel}>
+          <Button variant="secondary" onClick={onCancel}>
             Cancel
           </Button>
-          <Button variant={destructive ? 'danger' : 'filled'} onClick={onConfirm}>
+          <Button variant={destructive ? 'danger' : 'primary'} onClick={onConfirm}>
             {confirmLabel}
           </Button>
         </>
       }
     >
-      <p className="text-sm leading-relaxed text-on-surface-variant">{message}</p>
+      <p className="text-[12.5px] leading-relaxed text-muted">{message}</p>
     </Modal>
   )
 }

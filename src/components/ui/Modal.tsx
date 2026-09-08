@@ -10,7 +10,6 @@ interface Props {
   footer?: ReactNode
 }
 
-/** Material 3 dialog: 28px radius, high surface container, scrim behind. */
 export function Modal({ open, title, onClose, children, footer }: Props) {
   useEffect(() => {
     if (!open) return
@@ -25,8 +24,7 @@ export function Modal({ open, title, onClose, children, footer }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'var(--md-scrim)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
       onMouseDown={onClose}
       role="presentation"
     >
@@ -34,17 +32,19 @@ export function Modal({ open, title, onClose, children, footer }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-[28px] bg-surface-high text-on-surface shadow-e3"
+        className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-lg border border-line bg-card text-ink"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between gap-3 px-6 pt-5 pb-2">
-          <h2 className="text-xl font-normal text-on-surface">{title}</h2>
-          <IconButton label="Close" onClick={onClose}>
-            <X size={18} />
+        <div className="flex items-center justify-between gap-3 border-b border-line-soft px-5 py-3">
+          <h2 className="text-[14px] font-medium">{title}</h2>
+          <IconButton label="Close" bordered={false} className="h-7 w-7" onClick={onClose}>
+            <X size={16} />
           </IconButton>
         </div>
-        <div className="max-h-[60vh] overflow-y-auto px-6 py-2">{children}</div>
-        {footer && <div className="flex justify-end gap-2 px-6 pt-3 pb-5">{footer}</div>}
+        <div className="max-h-[60vh] overflow-y-auto px-5 py-4">{children}</div>
+        {footer && (
+          <div className="flex justify-end gap-2 border-t border-line-soft px-5 py-3">{footer}</div>
+        )}
       </div>
     </div>
   )

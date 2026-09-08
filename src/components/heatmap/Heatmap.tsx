@@ -26,31 +26,31 @@ export function Heatmap({ secondsByDay, weeks = 26, color = DEFAULT_HOBBY_COLOR 
 
   return (
     <div className="overflow-x-auto pb-1">
-      <div className="inline-flex flex-col gap-1.5">
-        <div className="flex gap-1 pl-9">
+      <div className="inline-flex flex-col gap-1">
+        <div className="flex gap-0.75 pl-8">
           {grid.map((week, i) => {
             const first = week[0].key
             const prev = i > 0 ? grid[i - 1][0].key : null
             const show = !prev || monthLabel(prev) !== monthLabel(first)
             return (
-              <div key={first} className="w-3.5 text-[10px] text-on-surface-variant">
+              <div key={first} className="w-3 text-[9.5px] text-muted">
                 {show ? monthLabel(first) : ''}
               </div>
             )
           })}
         </div>
 
-        <div className="flex gap-1">
-          <div className="flex w-8 flex-col gap-1">
+        <div className="flex gap-0.75">
+          <div className="flex w-8 flex-col gap-0.75">
             {DAY_LABELS.map((d, i) => (
-              <div key={i} className="h-3.5 text-[10px] leading-3.5 text-on-surface-variant">
+              <div key={i} className="h-3 text-[9.5px] leading-3 text-muted">
                 {d}
               </div>
             ))}
           </div>
 
           {grid.map((week) => (
-            <div key={week[0].key} className="flex flex-col gap-1">
+            <div key={week[0].key} className="flex flex-col gap-0.75">
               {week.map((day) => {
                 const minutes = Math.round((secondsByDay.get(day.key) ?? 0) / 60)
                 const b = bucket(minutes)
@@ -62,10 +62,13 @@ export function Heatmap({ secondsByDay, weeks = 26, color = DEFAULT_HOBBY_COLOR 
                         ? undefined
                         : `${prettyDate(day.key)} — ${minutes ? `${minutes} min` : 'nothing logged'}`
                     }
-                    className="h-3.5 w-3.5 rounded-sm"
+                    className="h-3 w-3 rounded-xs"
                     style={{
-                      backgroundColor:
-                        day.inFuture ? 'transparent' : b === 0 ? 'var(--md-heatmap-empty)' : color,
+                      backgroundColor: day.inFuture
+                        ? 'transparent'
+                        : b === 0
+                          ? 'var(--c-heatmap-empty)'
+                          : color,
                       opacity: day.inFuture ? 0 : b === 0 ? 1 : OPACITY[b],
                     }}
                   />
@@ -74,22 +77,29 @@ export function Heatmap({ secondsByDay, weeks = 26, color = DEFAULT_HOBBY_COLOR 
             </div>
           ))}
         </div>
-
-        <div className="flex items-center gap-1.5 pl-9 pt-1 text-[10px] text-on-surface-variant">
-          <span>Less</span>
-          {OPACITY.map((o, i) => (
-            <span
-              key={i}
-              className="h-3 w-3 rounded-[3px]"
-              style={{
-                backgroundColor: i === 0 ? 'var(--md-heatmap-empty)' : color,
-                opacity: i === 0 ? 1 : o,
-              }}
-            />
-          ))}
-          <span>More</span>
-        </div>
       </div>
+    </div>
+  )
+}
+
+/** The Less -> More key, placed in the card header rather than under the grid. */
+export function HeatmapLegend({ color = DEFAULT_HOBBY_COLOR }: { color?: string }) {
+  return (
+    <div className="flex items-center gap-2 text-[11px] text-muted">
+      <span>Less</span>
+      <div className="flex gap-0.75">
+        {OPACITY.map((o, i) => (
+          <span
+            key={i}
+            className="h-2.5 w-2.5 rounded-xs"
+            style={{
+              backgroundColor: i === 0 ? 'var(--c-heatmap-empty)' : color,
+              opacity: i === 0 ? 1 : o,
+            }}
+          />
+        ))}
+      </div>
+      <span>More</span>
     </div>
   )
 }

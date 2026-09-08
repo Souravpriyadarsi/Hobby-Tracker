@@ -1,9 +1,8 @@
 import type { ButtonHTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 
-/** Material 3 button emphasis levels. */
-type Variant = 'filled' | 'tonal' | 'outlined' | 'text' | 'danger'
-type Size = 'sm' | 'md' | 'lg'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
+type Size = 'sm' | 'md'
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant
@@ -11,28 +10,23 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  filled: 'bg-primary text-on-primary shadow-e1 hover:shadow-e2 hover:brightness-105',
-  tonal: 'bg-secondary-container text-on-secondary-container hover:brightness-95',
-  outlined:
-    'border border-outline text-primary hover:bg-primary/8 dark:hover:bg-primary/12',
-  text: 'text-on-surface-variant hover:bg-on-surface/8',
-  danger: 'bg-error text-on-error shadow-e1 hover:brightness-105',
+  primary: 'bg-accent-solid text-on-accent hover:brightness-105',
+  secondary: 'border border-line-strong text-ink-soft hover:bg-ink/5',
+  ghost: 'text-muted hover:bg-ink/5',
+  danger: 'bg-danger text-on-danger hover:brightness-110',
 }
 
 const sizes: Record<Size, string> = {
-  sm: 'h-8 px-3 text-[13px]',
-  md: 'h-10 px-5 text-sm',
-  lg: 'h-12 px-6 text-[15px]',
+  sm: 'h-8 px-3 text-xs',
+  md: 'h-9 px-4 text-[13px]',
 }
 
-export function Button({ variant = 'filled', size = 'md', className, ...rest }: Props) {
+export function Button({ variant = 'primary', size = 'md', className, ...rest }: Props) {
   return (
     <button
       className={cn(
-        // M3 buttons are fully rounded with a generous target area.
-        'inline-flex shrink-0 items-center justify-center gap-2 rounded-full font-medium',
-        'transition-all duration-150 active:scale-[0.98]',
-        'disabled:pointer-events-none disabled:opacity-40 disabled:shadow-none',
+        'inline-flex shrink-0 items-center justify-center gap-2 rounded-sm font-medium',
+        'transition-colors disabled:pointer-events-none disabled:opacity-40',
         variants[variant],
         sizes[size],
         className,
@@ -42,20 +36,22 @@ export function Button({ variant = 'filled', size = 'md', className, ...rest }: 
   )
 }
 
-/** Circular icon-only button — M3 "icon button". */
+/** Square icon-only button, sized to sit level with a `md` Button. */
 export function IconButton({
   className,
   label,
+  bordered = true,
   ...rest
-}: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { label: string; bordered?: boolean }) {
   return (
     <button
       aria-label={label}
       title={label}
       className={cn(
-        'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-        'text-on-surface-variant transition-colors hover:bg-on-surface/8',
+        'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-sm',
+        'text-muted transition-colors hover:bg-ink/5 hover:text-ink',
         'disabled:pointer-events-none disabled:opacity-40',
+        bordered && 'border border-line',
         className,
       )}
       {...rest}

@@ -40,7 +40,7 @@ export function ManualEntryForm({ hobbyId }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-wrap items-start gap-3">
+    <form onSubmit={submit} className="flex flex-wrap items-start gap-2.5">
       <TextField
         id="manual-duration"
         label="Duration"
@@ -48,7 +48,7 @@ export function ManualEntryForm({ hobbyId }: Props) {
         onChange={(e) => setDuration(e.target.value)}
         placeholder="45m"
         error={error}
-        className="w-28"
+        className="w-24"
       />
       <TextField
         id="manual-date"
@@ -57,7 +57,7 @@ export function ManualEntryForm({ hobbyId }: Props) {
         value={date}
         max={todayKey()}
         onChange={(e) => setDate(e.target.value)}
-        className="w-44"
+        className="w-40"
       />
       <div className="min-w-40 flex-1">
         <TextField
@@ -68,8 +68,8 @@ export function ManualEntryForm({ hobbyId }: Props) {
           placeholder="What did you work on?"
         />
       </div>
-      <Button type="submit" className="mt-6.5">
-        <Plus size={17} /> Add
+      <Button type="submit" className="mt-6">
+        <Plus size={15} /> Add
       </Button>
     </form>
   )

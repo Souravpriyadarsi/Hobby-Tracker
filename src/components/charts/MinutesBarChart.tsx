@@ -9,7 +9,6 @@ import {
 } from 'recharts'
 import { tooltipStyle, useChartTheme } from './chartTheme'
 import { formatDuration } from '../../lib/time'
-import { DEFAULT_HOBBY_COLOR } from '../../lib/palette'
 
 interface Datum {
   label: string
@@ -22,39 +21,42 @@ interface Props {
   height?: number
 }
 
-export function MinutesBarChart({ data, color = DEFAULT_HOBBY_COLOR, height = 210 }: Props) {
+/** Single series, so no legend — the card title names it. */
+export function MinutesBarChart({ data, color, height = 168 }: Props) {
   const t = useChartTheme()
   const empty = data.every((d) => d.minutes === 0)
+  const fill = color ?? t.accent
 
   return (
     <div className="relative" style={{ height }}>
       {empty && (
-        <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-on-surface-variant">
+        <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-[11.5px] text-muted">
           No time logged in this range
         </p>
       )}
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -18 }}>
-          <CartesianGrid vertical={false} stroke={t.grid} strokeDasharray="3 3" />
+        {/* left margin must not eat into YAxis width, or 3-digit labels clip */}
+        <BarChart data={data} margin={{ top: 6, right: 4, bottom: 0, left: -4 }}>
+          <CartesianGrid vertical={false} stroke={t.grid} strokeDasharray="2 3" />
           <XAxis
             dataKey="label"
-            tick={{ fill: t.axis, fontSize: 11 }}
-            axisLine={false}
+            tick={{ fill: t.axis, fontSize: 10 }}
+            axisLine={{ stroke: t.grid }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: t.axis, fontSize: 11 }}
+            tick={{ fill: t.axis, fontSize: 10 }}
             axisLine={false}
             tickLine={false}
-            width={44}
+            width={42}
             allowDecimals={false}
           />
           <Tooltip
-            cursor={{ fill: t.grid, opacity: 0.35 }}
+            cursor={{ fill: t.grid, opacity: 0.4 }}
             contentStyle={tooltipStyle(t)}
             formatter={(value) => [formatDuration(Number(value) * 60), 'Time']}
           />
-          <Bar dataKey="minutes" fill={color} radius={[8, 8, 4, 4]} maxBarSize={42} />
+          <Bar dataKey="minutes" fill={fill} radius={[3, 3, 0, 0]} maxBarSize={30} />
         </BarChart>
       </ResponsiveContainer>
     </div>

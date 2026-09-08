@@ -1,70 +1,58 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, ListChecks, Settings, Sprout } from 'lucide-react'
+import { LayoutDashboard, ListChecks, Moon, Settings, Sprout, Sun } from 'lucide-react'
 import { cn } from '../../lib/cn'
-import { useDataStore } from '../../store/useDataStore'
-import { useTimerStore } from '../../store/useTimerStore'
+import { useUiStore } from '../../store/useUiStore'
 
-/** Material 3 navigation drawer item: full-pill, tonal when active. */
+/**
+ * Deliberately a fixed three items. An earlier version listed every hobby here,
+ * which meant the sidebar grew without bound; hobbies are reached through the
+ * Hobbies page instead, and the running timer surfaces in the top bar.
+ */
 function navClass({ isActive }: { isActive: boolean }) {
   return cn(
-    'flex h-14 items-center gap-3 rounded-full px-4 text-sm font-medium transition-colors',
+    'flex h-8.5 items-center gap-2.5 rounded-sm px-2.5 text-[13px] transition-colors',
     isActive
-      ? 'bg-secondary-container text-on-secondary-container'
-      : 'text-on-surface-variant hover:bg-on-surface/8',
+      ? 'bg-accent-tint font-medium text-accent'
+      : 'text-muted hover:bg-ink/5 hover:text-ink-soft',
   )
 }
 
 export function Sidebar() {
-  const allHobbies = useDataStore((s) => s.hobbies)
-  const hobbies = allHobbies.filter((h) => !h.archived)
-  const activeTimerHobby = useTimerStore((s) => s.hobbyId)
+  const theme = useUiStore((s) => s.theme)
+  const toggleTheme = useUiStore((s) => s.toggleTheme)
 
   return (
-    <aside className="flex w-68 shrink-0 flex-col bg-surface-low">
-      <div className="flex items-center gap-2.5 px-6 py-5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
-          <Sprout size={19} />
+    <aside className="flex w-56 shrink-0 flex-col border-r border-line-soft">
+      <div className="flex items-center gap-2.5 px-4 py-4.5">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent-solid text-on-accent">
+          <Sprout size={17} />
         </span>
-        <span className="text-[17px] font-medium text-on-surface">Hobby Tracker</span>
+        <span className="text-[13.5px] font-semibold tracking-tight text-ink">Hobby Tracker</span>
       </div>
 
-      <nav className="flex flex-col gap-1 px-3">
+      <nav className="flex flex-col gap-0.5 px-3">
         <NavLink to="/" end className={navClass}>
-          <LayoutDashboard size={20} /> Dashboard
+          <LayoutDashboard size={16} /> Dashboard
         </NavLink>
         <NavLink to="/hobbies" className={navClass}>
-          <ListChecks size={20} /> Hobbies
+          <ListChecks size={16} /> Hobbies
         </NavLink>
-      </nav>
-
-      <div className="mt-5 px-7 pb-1 text-xs font-medium tracking-wide text-on-surface-variant">
-        Your hobbies
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-2">
-        {hobbies.length === 0 && (
-          <p className="px-4 py-2 text-sm text-on-surface-variant/70">Nothing yet</p>
-        )}
-        {hobbies.map((h) => (
-          <NavLink key={h.id} to={`/hobby/${h.id}`} className={navClass}>
-            <span
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm"
-              style={{ backgroundColor: `${h.color}33` }}
-            >
-              {h.icon}
-            </span>
-            <span className="truncate">{h.name}</span>
-            {activeTimerHobby === h.id && (
-              <span className="ml-auto h-2 w-2 shrink-0 animate-pulse rounded-full bg-primary" />
-            )}
-          </NavLink>
-        ))}
-      </div>
-
-      <nav className="flex flex-col gap-1 px-3 pb-4">
         <NavLink to="/settings" className={navClass}>
-          <Settings size={20} /> Settings
+          <Settings size={16} /> Settings
         </NavLink>
       </nav>
+
+      <div className="flex-1" />
+
+      <div className="px-3 pb-3.5">
+        <button
+          onClick={toggleTheme}
+          className="flex h-8.5 w-full items-center gap-2.5 rounded-sm px-2.5 text-[13px] text-muted transition-colors hover:bg-ink/5 hover:text-ink-soft"
+        >
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+        </button>
+      </div>
     </aside>
   )
 }

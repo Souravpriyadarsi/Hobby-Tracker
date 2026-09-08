@@ -1,6 +1,6 @@
 import { useUiStore } from '../../store/useUiStore'
 
-export { CHART_PALETTE } from '../../lib/palette'
+export { HOBBY_COLORS as CHART_PALETTE, OTHER_COLOR } from '../../lib/palette'
 
 /** Chart chrome colours that track the active theme. */
 export function useChartTheme() {
@@ -8,11 +8,12 @@ export function useChartTheme() {
   const dark = theme === 'dark'
   return {
     dark,
-    axis: dark ? '#b8ada0' : '#6d6459',
-    grid: dark ? '#3b362e' : '#ded5c8',
-    tooltipBg: dark ? '#2d2922' : '#ffffff',
-    tooltipBorder: dark ? '#3b362e' : '#ded5c8',
-    tooltipText: dark ? '#ece5da' : '#221e19',
+    axis: dark ? '#6b6b6b' : '#949494',
+    grid: dark ? '#242424' : '#ebebe9',
+    accent: dark ? '#6fc3a8' : '#2e9b7f',
+    tooltipBg: dark ? '#1f1f1f' : '#ffffff',
+    tooltipBorder: dark ? '#333333' : '#e4e4e2',
+    tooltipText: dark ? '#ededed' : '#1a1a1a',
   }
 }
 
@@ -20,9 +21,9 @@ export function tooltipStyle(t: ReturnType<typeof useChartTheme>) {
   return {
     background: t.tooltipBg,
     border: `1px solid ${t.tooltipBorder}`,
-    borderRadius: 12,
+    borderRadius: 5,
     color: t.tooltipText,
     fontSize: 12,
-    boxShadow: '0 4px 12px rgb(60 50 35 / 0.12)',
+    padding: '6px 10px',
   }
 }

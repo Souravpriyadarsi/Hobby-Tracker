@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { subDays } from 'date-fns'
-import { CalendarCheck2, Flame, Sparkles } from 'lucide-react'
-import { Page } from '../components/layout/Page'
-import { Card, CardTitle } from '../components/ui/Card'
+import { Check, Sparkles } from 'lucide-react'
+import { Page, PageTitle } from '../components/layout/Page'
+import { Card, CardTitle, StatTile } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Button } from '../components/ui/Button'
 import { SessionList } from '../components/sessions/SessionList'
@@ -14,12 +14,14 @@ import {
   activeDays,
   forHobby,
   minutesByHobbySince,
+  thisWeekSeconds,
   todaySeconds,
   weeklyMinutesSeries,
 } from '../lib/stats'
-import { currentStreak } from '../lib/streak'
-import { formatDuration } from '../lib/time'
+import { currentStreak, longestStreak } from '../lib/streak'
+import { formatDuration, pluralDays } from '../lib/time'
 import { dayKey, todayKey } from '../lib/date'
+import { HOBBY_COLORS, OTHER_COLOR } from '../lib/palette'
 import { cn } from '../lib/cn'
 
 export function DashboardPage() {
@@ -29,7 +31,10 @@ export function DashboardPage() {
   const checks = useDataStore((s) => s.checks)
   const toggleCheck = useDataStore((s) => s.toggleCheck)
 
-  const hobbyName = (hid: string) => hobbies.find((h) => h.id === hid)?.name ?? 'Unknown'
+  const hobbyMeta = (id: string) => {
+    const h = hobbies.find((x) => x.id === id)
+    return { name: h?.name ?? 'Unknown', color: h?.color ?? OTHER_COLOR }
+  }
 
   const data = useMemo(() => {
     const today = todayKey()
@@ -40,9 +45,11 @@ export function DashboardPage() {
       .map((h) => {
         const mine = forHobby(sessions, h.id)
         const myChecks = checks.filter((c) => c.hobbyId === h.id)
+        const days = activeDays(mine, myChecks)
         return {
           hobby: h,
-          streak: currentStreak(activeDays(mine, myChecks)),
+          streak: currentStreak(days),
+          best: longestStreak(days),
           doneToday:
             myChecks.some((c) => c.date === today) ||
             mine.some((s) => dayKey(s.startedAt) === today),
@@ -50,34 +57,42 @@ export function DashboardPage() {
       })
       .sort((a, b) => b.streak - a.streak)
 
+    const best = streaks.reduce<(typeof streaks)[number] | null>(
+      (top, s) => (top === null || s.best > top.best ? s : top),
+      null,
+    )
+
     const byHobby = minutesByHobbySince(sessions, weekAgo).map((slice) => {
-      const h = hobbies.find((x) => x.id === slice.hobbyId)
-      return { name: h?.name ?? 'Unknown', minutes: slice.minutes, color: h?.color ?? '#CFC095' }
+      const meta = hobbyMeta(slice.hobbyId)
+      return { name: meta.name, minutes: slice.minutes, color: meta.color }
     })
 
     return {
       todayTotal: todaySeconds(sessions),
-      checksToday: checks.filter((c) => c.date === today).length,
+      weekTotal: thisWeekSeconds(sessions),
       hobbiesToday: new Set(
         sessions.filter((s) => dayKey(s.startedAt) === today).map((s) => s.hobbyId),
       ).size,
+      best,
       streaks,
       weekly: weeklyMinutesSeries(sessions, 8),
       byHobby,
-      recent: sessions.slice(0, 8),
+      recent: sessions.slice(0, 6),
     }
+    // hobbyMeta is derived from `hobbies`, which is already a dependency.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hobbies, sessions, checks])
 
   if (hobbies.length === 0) {
     return (
-      <Page title="Dashboard">
+      <Page title={<PageTitle>Dashboard</PageTitle>}>
         <EmptyState
-          icon={<Sparkles size={28} />}
+          icon={<Sparkles size={22} />}
           title="Welcome to Hobby Tracker"
           hint="Create a hobby to start logging time, building streaks, and keeping notes in one place."
           action={
             <Link to="/hobbies">
-              <Button size="lg">Get started</Button>
+              <Button>Get started</Button>
             </Link>
           }
         />
@@ -86,105 +101,119 @@ export function DashboardPage() {
   }
 
   return (
-    <Page title="Dashboard">
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <div className="space-y-5 lg:col-span-2">
-          <div className="grid grid-cols-3 gap-3">
-            <Summary label="Time today" value={formatDuration(data.todayTotal)} highlight />
-            <Summary label="Hobbies today" value={String(data.hobbiesToday)} />
-            <Summary label="Check-ins today" value={String(data.checksToday)} />
-          </div>
+    <Page title={<PageTitle>Dashboard</PageTitle>}>
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <StatTile
+            label="TIME TODAY"
+            color={HOBBY_COLORS[2]}
+            value={formatDuration(data.todayTotal)}
+          />
+          <StatTile
+            label="THIS WEEK"
+            color={HOBBY_COLORS[0]}
+            value={formatDuration(data.weekTotal)}
+          />
+          <StatTile
+            label="HOBBIES TODAY"
+            color={HOBBY_COLORS[3]}
+            value={String(data.hobbiesToday)}
+          />
+          <StatTile
+            label="LONGEST STREAK"
+            color={HOBBY_COLORS[1]}
+            value={data.best ? String(data.best.best) : '0'}
+            sub={data.best?.best ? `${data.best.best === 1 ? 'day' : 'days'} · ${data.best.hobby.name}` : 'days'}
+          />
+        </div>
 
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           <Card>
-            <CardTitle>Weekly time · last 8 weeks</CardTitle>
-            <MinutesBarChart data={data.weekly} />
-          </Card>
-
-          <Card>
-            <CardTitle>Time by hobby · last 7 days</CardTitle>
+            <CardTitle action={<span className="text-[11.5px] text-faint">Last 7 days</span>}>
+              Time by hobby
+            </CardTitle>
             <TimeByHobbyChart data={data.byHobby} />
           </Card>
 
           <Card>
-            <CardTitle>Recent sessions</CardTitle>
-            <SessionList sessions={data.recent} showHobby={hobbyName} />
+            <CardTitle action={<span className="text-[11.5px] text-faint">Last 8 weeks</span>}>
+              Weekly time
+            </CardTitle>
+            <MinutesBarChart data={data.weekly} />
           </Card>
         </div>
 
-        <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           <Card>
-            <CardTitle>Streaks</CardTitle>
+            <CardTitle
+              action={
+                <Link to="/hobbies" className="text-[11.5px] text-accent hover:underline">
+                  All hobbies &rarr;
+                </Link>
+              }
+            >
+              Streaks
+            </CardTitle>
             {data.streaks.length === 0 ? (
-              <p className="text-sm text-on-surface-variant">No streak-tracked hobbies.</p>
+              <p className="py-6 text-center text-[12.5px] text-muted">
+                No streak-tracked hobbies.
+              </p>
             ) : (
-              <ul className="space-y-1">
-                {data.streaks.map(({ hobby, streak, doneToday }) => (
-                  <li key={hobby.id} className="flex items-center gap-2">
-                    <Link
-                      to={`/hobby/${hobby.id}`}
-                      className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl py-1.5 text-sm hover:underline"
-                    >
-                      <span
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm"
-                        style={{ backgroundColor: `${hobby.color}33` }}
-                      >
-                        {hobby.icon}
-                      </span>
-                      <span className="truncate text-on-surface">{hobby.name}</span>
+              <ul className="divide-y divide-line-soft">
+                {data.streaks.map(({ hobby, streak, best, doneToday }) => (
+                  <li key={hobby.id} className="flex items-center gap-3 py-2.5">
+                    <span
+                      className="h-1.75 w-1.75 shrink-0 rounded-full"
+                      style={{ backgroundColor: hobby.color }}
+                    />
+                    <Link to={`/hobby/${hobby.id}`} className="min-w-0 flex-1">
+                      <div className="truncate text-[12.8px] text-ink hover:underline">
+                        {hobby.name}
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-muted">
+                        Best {pluralDays(best)}
+                        {hobby.dailyGoalMinutes ? ` · goal ${hobby.dailyGoalMinutes} min` : ''}
+                      </div>
                     </Link>
-                    <span className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-on-surface">
-                      <Flame
-                        size={15}
-                        className={streak > 0 ? 'text-secondary' : 'text-on-surface-variant/40'}
-                      />
-                      {streak}
+                    <span
+                      className={cn(
+                        'num shrink-0 text-[12.8px]',
+                        streak > 0 ? 'text-accent' : 'text-muted',
+                      )}
+                    >
+                      {pluralDays(streak)}
                     </span>
                     <button
                       onClick={() => toggleCheck(hobby.id)}
                       className={cn(
-                        'shrink-0 rounded-full p-2 transition-colors',
+                        'flex h-6 w-6 shrink-0 items-center justify-center rounded-xs transition-colors',
                         doneToday
-                          ? 'bg-primary text-on-primary'
-                          : 'bg-surface-container text-on-surface-variant hover:bg-surface-highest',
+                          ? 'bg-accent-tint text-accent'
+                          : 'border border-line bg-well text-faint hover:text-muted',
                       )}
                       aria-label={
                         doneToday ? `Unmark ${hobby.name} today` : `Mark ${hobby.name} done today`
                       }
                       title={doneToday ? 'Done today' : 'Mark done today'}
                     >
-                      <CalendarCheck2 size={15} />
+                      <Check size={13} strokeWidth={2.5} />
                     </button>
                   </li>
                 ))}
               </ul>
             )}
           </Card>
+
+          <Card>
+            <CardTitle
+              action={<span className="text-[11.5px] text-faint">{sessions.length} total</span>}
+            >
+              Recent sessions
+            </CardTitle>
+            <SessionList sessions={data.recent} hobbyMeta={hobbyMeta} />
+          </Card>
         </div>
       </div>
     </Page>
-  )
-}
-
-function Summary({
-  label,
-  value,
-  highlight,
-}: {
-  label: string
-  value: string
-  highlight?: boolean
-}) {
-  return (
-    <div
-      className={cn(
-        'rounded-3xl p-5',
-        highlight ? 'bg-primary-container text-on-primary-container' : 'bg-surface-low',
-      )}
-    >
-      <div className="text-2xl font-normal">{value}</div>
-      <div className={cn('mt-1 text-xs', highlight ? 'opacity-80' : 'text-on-surface-variant')}>
-        {label}
-      </div>
-    </div>
   )
 }

@@ -8,30 +8,44 @@ import { useDataStore } from '../../store/useDataStore'
 
 interface Props {
   sessions: Session[]
-  showHobby?: (hobbyId: string) => string
+  /** Renders a hobby chip + dot per row; omit on a single-hobby list. */
+  hobbyMeta?: (hobbyId: string) => { name: string; color: string }
+  /** Puts the duration in a fixed left column instead of the right. */
+  durationFirst?: boolean
 }
 
-export function SessionList({ sessions, showHobby }: Props) {
+export function SessionList({ sessions, hobbyMeta, durationFirst }: Props) {
   if (sessions.length === 0) {
-    return (
-      <p className="py-8 text-center text-sm text-on-surface-variant">No sessions logged yet.</p>
-    )
+    return <p className="py-8 text-center text-[12.5px] text-muted">No sessions logged yet.</p>
   }
   return (
-    <ul className="divide-y divide-outline-variant">
+    <ul className="divide-y divide-line-soft">
       {sessions.map((s) => (
-        <SessionRow key={s.id} session={s} label={showHobby?.(s.hobbyId)} />
+        <SessionRow
+          key={s.id}
+          session={s}
+          meta={hobbyMeta?.(s.hobbyId)}
+          durationFirst={durationFirst}
+        />
       ))}
     </ul>
   )
 }
 
-function SessionRow({ session, label }: { session: Session; label?: string }) {
+function SessionRow({
+  session,
+  meta,
+  durationFirst,
+}: {
+  session: Session
+  meta?: { name: string; color: string }
+  durationFirst?: boolean
+}) {
   const editSession = useDataStore((s) => s.editSession)
   const removeSession = useDataStore((s) => s.removeSession)
   const [editing, setEditing] = useState(false)
-  const [duration, setDuration] = useState(formatDuration(session.durationSeconds))
-  const [note, setNote] = useState(session.note)
+  const [duration, setDuration] = useState('')
+  const [note, setNote] = useState('')
 
   async function save() {
     const minutes = parseDurationInput(duration)
@@ -48,23 +62,31 @@ function SessionRow({ session, label }: { session: Session; label?: string }) {
     setEditing(true)
   }
 
-  const inputCls =
-    'rounded-lg border border-outline-variant bg-surface-lowest px-2 py-1 text-sm text-on-surface outline-none focus:border-primary'
+  const input =
+    'rounded-sm border border-line-strong bg-well px-2 py-1 text-[12.5px] text-ink outline-none focus:border-accent'
+  const when = formatDistanceToNow(parseISO(session.startedAt), { addSuffix: true })
+  const value = formatDuration(session.durationSeconds)
 
   return (
-    <li className="flex items-center gap-3 py-3 text-sm">
-      <div className="w-20 shrink-0 font-mono tabular-nums text-on-surface">
-        {editing ? (
-          <input
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            className={`w-18 ${inputCls}`}
-            aria-label="Duration"
-          />
-        ) : (
-          formatDuration(session.durationSeconds)
-        )}
-      </div>
+    <li className="group flex items-center gap-3 py-2.5">
+      {durationFirst && !editing && (
+        <span className="num w-16 shrink-0 text-[12.8px] text-ink">{value}</span>
+      )}
+      {editing && (
+        <input
+          value={duration}
+          onChange={(e) => setDuration(e.target.value)}
+          className={`w-16 shrink-0 ${input}`}
+          aria-label="Duration"
+        />
+      )}
+
+      {!durationFirst && !editing && meta && (
+        <span
+          className="h-1.75 w-1.75 shrink-0 rounded-full"
+          style={{ backgroundColor: meta.color }}
+        />
+      )}
 
       <div className="min-w-0 flex-1">
         {editing ? (
@@ -72,57 +94,54 @@ function SessionRow({ session, label }: { session: Session; label?: string }) {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Note"
-            className={`w-full ${inputCls}`}
+            className={`w-full ${input}`}
             aria-label="Note"
           />
         ) : (
-          <div className="truncate">
-            {label && (
-              <span className="mr-2 rounded-full bg-surface-container px-2 py-0.5 text-xs text-on-surface-variant">
-                {label}
-              </span>
-            )}
-            <span className="text-on-surface">{session.note || '—'}</span>
-          </div>
+          <div className="truncate text-[12.8px] text-ink">{session.note || '—'}</div>
         )}
-        <div className="mt-0.5 text-xs text-on-surface-variant" title={prettyDate(dayKey(session.startedAt))}>
-          {formatDistanceToNow(parseISO(session.startedAt), { addSuffix: true })}
+        <div className="mt-0.5 text-[11px] text-muted" title={prettyDate(dayKey(session.startedAt))}>
+          {meta ? `${meta.name} · ${when}` : when}
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center">
+      {!durationFirst && !editing && (
+        <span className="num shrink-0 text-[12.8px] text-ink">{value}</span>
+      )}
+
+      <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
         {editing ? (
           <>
             <button
               onClick={save}
-              className="rounded-full p-2 text-primary transition-colors hover:bg-primary/12"
+              className="rounded-sm p-1.5 text-accent transition-colors hover:bg-accent/15"
               aria-label="Save session"
             >
-              <Check size={16} />
+              <Check size={15} />
             </button>
             <button
               onClick={() => setEditing(false)}
-              className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-on-surface/8"
+              className="rounded-sm p-1.5 text-muted transition-colors hover:bg-ink/5"
               aria-label="Cancel edit"
             >
-              <X size={16} />
+              <X size={15} />
             </button>
           </>
         ) : (
           <>
             <button
               onClick={startEditing}
-              className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-on-surface/8"
+              className="rounded-sm p-1.5 text-muted transition-colors hover:bg-ink/5 hover:text-ink"
               aria-label="Edit session"
             >
-              <Pencil size={16} />
+              <Pencil size={15} />
             </button>
             <button
               onClick={() => removeSession(session.id)}
-              className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-error/15 hover:text-error"
+              className="rounded-sm p-1.5 text-muted transition-colors hover:bg-danger/15 hover:text-danger-text"
               aria-label="Delete session"
             >
-              <Trash2 size={16} />
+              <Trash2 size={15} />
             </button>
           </>
         )}

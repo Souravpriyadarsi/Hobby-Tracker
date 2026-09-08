@@ -10,7 +10,7 @@ import {
   Sun,
   Upload,
 } from 'lucide-react'
-import { Page } from '../components/layout/Page'
+import { Page, PageTitle } from '../components/layout/Page'
 import { Button } from '../components/ui/Button'
 import { Card, CardTitle } from '../components/ui/Card'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
@@ -117,24 +117,24 @@ export function SettingsPage() {
   }
 
   return (
-    <Page title="Settings">
-      <div className="space-y-5">
+    <Page title={<PageTitle>Settings</PageTitle>}>
+      <div className="max-w-3xl space-y-3">
         <Card>
           <CardTitle>Appearance</CardTitle>
-          <p className="mb-4 text-sm text-on-surface-variant">
-            Choose how Hobby Tracker looks. Your choice is remembered.
+          <p className="mb-3.5 text-[12px] text-muted">
+            Your choice is remembered on this device.
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2">
             <ThemeChoice
               active={theme === 'light'}
               onClick={() => setTheme('light')}
-              icon={<Sun size={17} />}
+              icon={<Sun size={14} />}
               label="Light"
             />
             <ThemeChoice
               active={theme === 'dark'}
               onClick={() => setTheme('dark')}
-              icon={<Moon size={17} />}
+              icon={<Moon size={14} />}
               label="Dark"
             />
           </div>
@@ -142,15 +142,16 @@ export function SettingsPage() {
 
         <Card>
           <CardTitle>Your data</CardTitle>
-          <div className="mb-5 flex items-start gap-3 rounded-2xl bg-surface-container px-4 py-3">
-            <Database size={18} className="mt-0.5 shrink-0 text-on-surface-variant" />
-            <div className="text-sm">
-              <p className="text-on-surface">{storageLabel || 'Checking…'}</p>
-              <p className="mt-0.5 text-on-surface-variant">
+
+          <div className="flex items-start gap-3 rounded-sm border border-line bg-well px-4 py-3">
+            <Database size={16} className="mt-0.5 shrink-0 text-muted" />
+            <div>
+              <p className="text-[12.8px] text-ink">{storageLabel || 'Checking…'}</p>
+              <p className="num mt-0.5 text-[11.5px] text-muted">
                 {hobbies.length} hobbies · {sessions.length} sessions · {checks.length} check-ins
               </p>
               {!isTauri() && (
-                <p className="mt-1.5 text-xs text-on-surface-variant">
+                <p className="mt-1.5 text-[11px] text-faint">
                   You&apos;re running in a browser. Data here is separate from the desktop app —
                   use Backup and Restore to move between them.
                 </p>
@@ -158,41 +159,40 @@ export function SettingsPage() {
             </div>
           </div>
 
-          <div className="space-y-3">
-            <Row
-              title="Back up data"
-              description="Save everything to a JSON file you can keep or move to another machine."
-              action={
-                <Button variant="tonal" onClick={handleBackup} disabled={busy}>
-                  <Download size={17} /> Back up
-                </Button>
-              }
-            />
-            <Row
-              title="Restore from backup"
-              description="Load a backup file. This replaces everything currently in the app."
-              action={
-                <Button variant="outlined" onClick={handlePickRestore} disabled={busy}>
-                  <Upload size={17} /> Restore
-                </Button>
-              }
-            />
-          </div>
+          <Row
+            title="Back up data"
+            description="Save everything to a JSON file you can keep or move to another machine."
+            action={
+              <Button onClick={handleBackup} disabled={busy}>
+                <Download size={14} /> Back up
+              </Button>
+            }
+          />
+          <Row
+            title="Restore from backup"
+            description="Load a backup file. This replaces everything currently in the app."
+            last
+            action={
+              <Button variant="secondary" onClick={handlePickRestore} disabled={busy}>
+                <Upload size={14} /> Restore
+              </Button>
+            }
+          />
         </Card>
 
         <Card>
           <CardTitle>
-            <span className="text-error">Danger zone</span>
+            <span className="text-danger-text">Danger zone</span>
           </CardTitle>
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-error-container px-4 py-3.5 text-on-error-container">
+          <div className="flex flex-wrap items-center gap-4 rounded-sm border border-danger-line bg-danger-tint px-4 py-3">
             <div className="min-w-48 flex-1">
-              <p className="text-sm font-medium">Reset all data</p>
-              <p className="mt-0.5 text-sm opacity-80">
+              <p className="text-[12.8px] text-ink">Reset all data</p>
+              <p className="mt-0.5 text-[11.5px] text-muted">
                 Permanently deletes every hobby, session, and check-in. Back up first.
               </p>
             </div>
             <Button variant="danger" onClick={() => setConfirmReset(true)} disabled={busy}>
-              <RotateCcw size={17} /> Reset
+              <RotateCcw size={14} /> Reset
             </Button>
           </div>
         </Card>
@@ -201,24 +201,24 @@ export function SettingsPage() {
           <div
             role="status"
             className={cn(
-              'flex items-start gap-2.5 rounded-2xl px-4 py-3 text-sm',
+              'flex items-start gap-2.5 rounded-sm border px-4 py-3 text-[12.5px]',
               feedback.kind === 'ok'
-                ? 'bg-success-container text-on-success-container'
-                : 'bg-error-container text-on-error-container',
+                ? 'border-accent-line bg-accent-tint text-accent'
+                : 'border-danger-line bg-danger-tint text-danger-text',
             )}
           >
             {feedback.kind === 'ok' ? (
-              <Check size={17} className="mt-0.5 shrink-0" />
+              <Check size={15} className="mt-0.5 shrink-0" />
             ) : (
-              <AlertTriangle size={17} className="mt-0.5 shrink-0" />
+              <AlertTriangle size={15} className="mt-0.5 shrink-0" />
             )}
             <span className="break-all">{feedback.text}</span>
           </div>
         )}
 
-        <p className="flex items-center gap-2 px-1 text-xs text-on-surface-variant">
-          <Monitor size={14} />
-          Hobby Tracker · {isTauri() ? 'desktop' : 'browser'} mode
+        <p className="flex items-center gap-2 px-0.5 text-[11.5px] text-faint">
+          <Monitor size={13} />
+          Hobby Tracker 0.1.0 · {isTauri() ? 'desktop' : 'browser'} mode
         </p>
       </div>
 
@@ -249,16 +249,23 @@ function Row({
   title,
   description,
   action,
+  last,
 }: {
   title: string
   description: string
   action: ReactNode
+  last?: boolean
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-surface-container px-4 py-3.5">
+    <div
+      className={cn(
+        'flex flex-wrap items-center gap-4 py-3.5',
+        !last && 'border-b border-line-soft',
+      )}
+    >
       <div className="min-w-48 flex-1">
-        <p className="text-sm font-medium text-on-surface">{title}</p>
-        <p className="mt-0.5 text-sm text-on-surface-variant">{description}</p>
+        <p className="text-[12.8px] text-ink">{title}</p>
+        <p className="mt-0.5 text-[11.5px] text-muted">{description}</p>
       </div>
       {action}
     </div>
@@ -281,13 +288,13 @@ function ThemeChoice({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'inline-flex h-10 items-center gap-2 rounded-full px-5 text-sm font-medium transition-colors',
+        'inline-flex h-9 items-center gap-2 rounded-sm px-4 text-[12.5px] transition-colors',
         active
-          ? 'bg-secondary-container text-on-secondary-container'
-          : 'border border-outline text-on-surface-variant hover:bg-on-surface/8',
+          ? 'border border-accent-line bg-accent-tint font-medium text-accent'
+          : 'border border-line-strong text-muted hover:text-ink',
       )}
     >
-      {active ? <Check size={17} /> : icon}
+      {active ? <Check size={14} /> : icon}
       {label}
     </button>
   )
