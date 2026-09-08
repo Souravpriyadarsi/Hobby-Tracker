@@ -218,7 +218,7 @@ export function SettingsPage() {
 
         <p className="flex items-center gap-2 px-0.5 text-[11.5px] text-faint">
           <Monitor size={13} />
-          Hobby Tracker 0.1.0 · {isTauri() ? 'desktop' : 'browser'} mode
+          Hobby Tracker {__APP_VERSION__} · {isTauri() ? 'desktop' : 'browser'} mode
         </p>
       </div>
 

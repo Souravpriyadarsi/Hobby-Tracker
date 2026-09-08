@@ -23,3 +23,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Built installers — distributed via GitHub Releases, not the repo
+/release

@@ -3,6 +3,17 @@
 One place to track every hobby you have — time spent, streaks, and notes.
 A small, offline-first desktop app.
 
+## Download
+
+**[Download for Windows](https://github.com/Souravpriyadarsi/Hobby-Tracker/releases/latest)** — 3.8 MB installer.
+
+Windows shows a "Windows protected your PC" warning the first time, because the
+app is not code-signed. Click **More info → Run anyway**. A portable build is on
+the same page if you would rather not install anything.
+
+macOS builds aren't published yet — Tauri can't cross-compile them from Windows,
+so a .dmg needs a Mac or a CI runner. Building from source works on macOS today.
+
 ## Features
 
 - **Timers** — an app-wide stopwatch with start / pause / resume / stop. An
@@ -15,7 +26,7 @@ A small, offline-first desktop app.
   sessions.
 - **Backup / restore / reset** — export everything to a JSON file and load it
   back on another machine, from Settings.
-- **Light and dark themes** — a warm pastel Material 3 palette.
+- **Light and dark themes** — a dense near-black dark mode, and a light mode built on the same hairline-bordered surfaces.
 
 ## Stack
 
@@ -23,7 +34,7 @@ A small, offline-first desktop app.
 | -------- | --------------------------------------------------- |
 | Shell    | Tauri 2 (small installers, native webview)          |
 | UI       | React 19 · TypeScript · Vite                        |
-| Styling  | Tailwind CSS v4, Material 3 design tokens           |
+| Styling  | Tailwind CSS v4, custom design tokens               |
 | State    | Zustand                                             |
 | Charts   | Recharts                                            |
 | Storage  | SQLite (desktop) · localStorage (browser dev)       |
