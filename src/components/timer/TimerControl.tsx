@@ -4,13 +4,15 @@ import { StatLabel } from '../ui/Card'
 import { formatClock } from '../../lib/time'
 import { useTimerControls } from '../../lib/useTimerControls'
 import { useElapsedSeconds, useTimerStore } from '../../store/useTimerStore'
+import { HobbyIcon } from '../hobbies/HobbyIcon'
 
 interface Props {
   hobbyId: string
+  hobbyIcon: string
   hobbyColor: string
 }
 
-export function TimerControl({ hobbyId, hobbyColor }: Props) {
+export function TimerControl({ hobbyId, hobbyIcon, hobbyColor }: Props) {
   const activeHobbyId = useTimerStore((s) => s.hobbyId)
   const running = useTimerStore((s) => s.running)
   const elapsed = useElapsedSeconds()
@@ -23,15 +25,7 @@ export function TimerControl({ hobbyId, hobbyColor }: Props) {
     <div className="rounded-md border border-line bg-card p-5">
       <div className="flex flex-wrap items-center justify-between gap-5">
         <div className="flex items-center gap-5">
-          <span
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md"
-            style={{ backgroundColor: `${hobbyColor}26` }}
-          >
-            <span
-              className="h-3 w-3 rounded-full"
-              style={{ backgroundColor: hobbyColor }}
-            />
-          </span>
+          <HobbyIcon icon={hobbyIcon} color={hobbyColor} size={44} />
           <div>
             <StatLabel color={isThisHobby && running ? hobbyColor : undefined}>
               {isThisHobby ? (running ? 'RECORDING' : 'PAUSED') : 'TIMER'}

@@ -94,7 +94,7 @@ export function HobbyDetailPage() {
       }
     >
       <div className="space-y-3">
-        <TimerControl hobbyId={hobby.id} hobbyColor={hobby.color} />
+        <TimerControl hobbyId={hobby.id} hobbyIcon={hobby.icon} hobbyColor={hobby.color} />
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatTile label="TOTAL TIME" value={formatDuration(stats.total)} />

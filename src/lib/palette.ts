@@ -26,19 +26,3 @@ export const DEFAULT_HOBBY_COLOR = HOBBY_COLORS[0]
 /** Fallback for anything beyond the six slots, and for unknown hobbies. */
 export const OTHER_COLOR = '#6B6B6B'
 
-export const HOBBY_ICONS = [
-  '🎯',
-  '📚',
-  '🎨',
-  '🎸',
-  '🏃',
-  '🧶',
-  '♟️',
-  '📷',
-  '✍️',
-  '🍳',
-  '🌱',
-  '🧩',
-  '🎮',
-  '🏋️',
-] as const

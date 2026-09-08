@@ -7,6 +7,7 @@ import { useTimerStore } from '../../store/useTimerStore'
 import { activeDays, forHobby, thisWeekSeconds, totalSeconds } from '../../lib/stats'
 import { currentStreak } from '../../lib/streak'
 import { formatDuration } from '../../lib/time'
+import { HobbyIcon } from './HobbyIcon'
 
 interface Props {
   hobby: Hobby
@@ -38,12 +39,7 @@ export function HobbyCard({ hobby, onEdit, onArchive }: Props) {
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-start justify-between gap-2">
           <Link to={`/hobby/${hobby.id}`} className="flex min-w-0 items-center gap-2.5">
-            <span
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-[15px]"
-              style={{ backgroundColor: `${hobby.color}26` }}
-            >
-              {hobby.icon}
-            </span>
+            <HobbyIcon icon={hobby.icon} color={hobby.color} size={32} />
             <span className="truncate text-[13.5px] font-medium text-ink group-hover:underline">
               {hobby.name}
             </span>

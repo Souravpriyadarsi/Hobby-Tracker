@@ -6,6 +6,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { HobbyCard } from '../components/hobbies/HobbyCard'
 import { HobbyFormModal } from '../components/hobbies/HobbyFormModal'
+import { HobbyIcon } from '../components/hobbies/HobbyIcon'
 import type { Hobby, HobbyInput } from '../db/types'
 import { useDataStore } from '../store/useDataStore'
 
@@ -82,12 +83,7 @@ export function HobbiesPage() {
           <ul className="divide-y divide-line-soft overflow-hidden rounded-md border border-line bg-card">
             {archived.map((h) => (
               <li key={h.id} className="flex items-center gap-3 px-4 py-2.5">
-                <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-[13px]"
-                  style={{ backgroundColor: `${h.color}26` }}
-                >
-                  {h.icon}
-                </span>
+                <HobbyIcon icon={h.icon} color={h.color} size={28} />
                 <span className="flex-1 truncate text-[12.8px] text-ink">{h.name}</span>
                 <Button size="sm" variant="ghost" onClick={() => editHobby(h.id, { archived: false })}>
                   Restore

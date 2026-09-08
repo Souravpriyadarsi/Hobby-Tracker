@@ -4,7 +4,8 @@ import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
 import { FieldGroup, TextField } from '../ui/TextField'
 import type { Hobby, HobbyInput } from '../../db/types'
-import { HOBBY_COLORS, HOBBY_ICONS } from '../../lib/palette'
+import { HOBBY_COLORS } from '../../lib/palette'
+import { HOBBY_ICONS, normalizeHobbyIcon } from '../../lib/hobbyIcons'
 import { cn } from '../../lib/cn'
 
 interface Props {
@@ -19,7 +20,9 @@ interface Props {
  */
 export function HobbyFormModal({ hobby, onClose, onSubmit }: Props) {
   const [name, setName] = useState(hobby?.name ?? '')
-  const [icon, setIcon] = useState<string>(hobby?.icon ?? HOBBY_ICONS[0])
+  // normalize so a hobby saved with the old emoji set pre-selects its mapping,
+  // and saving migrates it to the new key.
+  const [icon, setIcon] = useState<string>(normalizeHobbyIcon(hobby?.icon))
   const [color, setColor] = useState<string>(hobby?.color ?? HOBBY_COLORS[0])
   const [goal, setGoal] = useState(hobby?.dailyGoalMinutes ? String(hobby.dailyGoalMinutes) : '')
   const [trackStreak, setTrackStreak] = useState(hobby?.trackStreak ?? true)
@@ -66,19 +69,22 @@ export function HobbyFormModal({ hobby, onClose, onSubmit }: Props) {
 
         <FieldGroup label="Icon">
           <div className="flex flex-wrap gap-1.5">
-            {HOBBY_ICONS.map((i) => (
+            {HOBBY_ICONS.map(({ key, label, Icon }) => (
               <button
-                key={i}
+                key={key}
                 type="button"
-                onClick={() => setIcon(i)}
+                onClick={() => setIcon(key)}
+                title={label}
+                aria-label={label}
+                aria-pressed={icon === key}
                 className={cn(
-                  'h-8 w-8 rounded-sm text-[15px] transition-colors',
-                  icon === i
-                    ? 'bg-accent-tint ring-1 ring-accent'
-                    : 'bg-well hover:bg-raised',
+                  'flex h-8 w-8 items-center justify-center rounded-sm transition-colors',
+                  icon === key
+                    ? 'bg-accent-tint text-accent ring-1 ring-accent'
+                    : 'bg-well text-muted hover:bg-raised hover:text-ink',
                 )}
               >
-                {i}
+                <Icon size={16} />
               </button>
             ))}
           </div>
