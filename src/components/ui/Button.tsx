@@ -1,8 +1,9 @@
 import type { ButtonHTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
-type Size = 'sm' | 'md'
+/** Material 3 button emphasis levels. */
+type Variant = 'filled' | 'tonal' | 'outlined' | 'text' | 'danger'
+type Size = 'sm' | 'md' | 'lg'
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant
@@ -10,29 +11,51 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary:
-    'bg-indigo-600 text-white hover:bg-indigo-500 active:bg-indigo-700 disabled:bg-indigo-600/50',
-  secondary:
-    'bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600',
-  ghost:
-    'text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800',
-  danger: 'bg-red-600 text-white hover:bg-red-500 active:bg-red-700',
+  filled: 'bg-primary text-on-primary shadow-e1 hover:shadow-e2 hover:brightness-105',
+  tonal: 'bg-secondary-container text-on-secondary-container hover:brightness-95',
+  outlined:
+    'border border-outline text-primary hover:bg-primary/8 dark:hover:bg-primary/12',
+  text: 'text-on-surface-variant hover:bg-on-surface/8',
+  danger: 'bg-error text-on-error shadow-e1 hover:brightness-105',
 }
 
 const sizes: Record<Size, string> = {
-  sm: 'h-8 px-3 text-sm',
-  md: 'h-10 px-4 text-sm',
+  sm: 'h-8 px-3 text-[13px]',
+  md: 'h-10 px-5 text-sm',
+  lg: 'h-12 px-6 text-[15px]',
 }
 
-export function Button({ variant = 'primary', size = 'md', className, ...rest }: Props) {
+export function Button({ variant = 'filled', size = 'md', className, ...rest }: Props) {
   return (
     <button
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500',
-        'disabled:cursor-not-allowed disabled:opacity-60',
+        // M3 buttons are fully rounded with a generous target area.
+        'inline-flex shrink-0 items-center justify-center gap-2 rounded-full font-medium',
+        'transition-all duration-150 active:scale-[0.98]',
+        'disabled:pointer-events-none disabled:opacity-40 disabled:shadow-none',
         variants[variant],
         sizes[size],
+        className,
+      )}
+      {...rest}
+    />
+  )
+}
+
+/** Circular icon-only button — M3 "icon button". */
+export function IconButton({
+  className,
+  label,
+  ...rest
+}: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
+  return (
+    <button
+      aria-label={label}
+      title={label}
+      className={cn(
+        'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+        'text-on-surface-variant transition-colors hover:bg-on-surface/8',
+        'disabled:pointer-events-none disabled:opacity-40',
         className,
       )}
       {...rest}

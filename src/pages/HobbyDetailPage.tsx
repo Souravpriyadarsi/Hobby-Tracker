@@ -1,8 +1,8 @@
 import { type ReactNode, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CalendarCheck2, ChevronLeft, Flame, Pencil, Trash2 } from 'lucide-react'
 import { Page } from '../components/layout/Page'
-import { Button } from '../components/ui/Button'
+import { Button, IconButton } from '../components/ui/Button'
 import { Card, CardTitle } from '../components/ui/Card'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { HobbyFormModal } from '../components/hobbies/HobbyFormModal'
@@ -11,7 +11,7 @@ import { ManualEntryForm } from '../components/timer/ManualEntryForm'
 import { SessionList } from '../components/sessions/SessionList'
 import { Heatmap } from '../components/heatmap/Heatmap'
 import { MinutesBarChart } from '../components/charts/MinutesBarChart'
-import type { HobbyInput } from '../db/hobbies'
+import type { HobbyInput } from '../db/types'
 import { useDataStore } from '../store/useDataStore'
 import {
   activeDays,
@@ -25,16 +25,17 @@ import {
 import { currentStreak, longestStreak } from '../lib/streak'
 import { formatDuration } from '../lib/time'
 import { todayKey } from '../lib/date'
+import { cn } from '../lib/cn'
 
 export function HobbyDetailPage() {
   const { id = '' } = useParams()
+  const navigate = useNavigate()
   const hobby = useDataStore((s) => s.hobbies.find((h) => h.id === id))
   const sessions = useDataStore((s) => s.sessions)
   const checks = useDataStore((s) => s.checks)
   const editHobby = useDataStore((s) => s.editHobby)
   const removeHobby = useDataStore((s) => s.removeHobby)
   const toggleCheck = useDataStore((s) => s.toggleCheck)
-  const isChecked = useDataStore((s) => s.isChecked)
 
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -55,49 +56,54 @@ export function HobbyDetailPage() {
     }
   }, [mine, myChecks])
 
+  const checkedToday = myChecks.some((c) => c.date === todayKey())
+
   if (!hobby) {
     return (
       <Page title="Hobby">
-        <p className="text-sm text-slate-500">
-          This hobby doesn&apos;t exist. <Link to="/hobbies" className="text-indigo-600 hover:underline">Back to hobbies</Link>
+        <p className="text-sm text-on-surface-variant">
+          This hobby doesn&apos;t exist.{' '}
+          <Link to="/hobbies" className="text-primary hover:underline">
+            Back to hobbies
+          </Link>
         </p>
       </Page>
     )
   }
 
-  const checkedToday = isChecked(hobby.id, todayKey())
-
   return (
     <Page title={`${hobby.icon}  ${hobby.name}`}>
       <Link
         to="/hobbies"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+        className="mb-4 inline-flex items-center gap-1 rounded-full py-1 pr-3 text-sm text-on-surface-variant transition-colors hover:text-on-surface"
       >
-        <ChevronLeft size={15} /> All hobbies
+        <ChevronLeft size={16} /> All hobbies
       </Link>
 
-      <div className="mb-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
           <span
-            className="flex h-11 w-11 items-center justify-center rounded-xl text-2xl"
-            style={{ backgroundColor: `${hobby.color}22` }}
+            className="flex h-14 w-14 items-center justify-center rounded-2xl text-3xl"
+            style={{ backgroundColor: `${hobby.color}33` }}
           >
             {hobby.icon}
           </span>
           <div>
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{hobby.name}</h2>
+            <h2 className="text-2xl font-normal text-on-surface">{hobby.name}</h2>
             {hobby.dailyGoalMinutes && (
-              <p className="text-xs text-slate-400">Goal: {hobby.dailyGoalMinutes} min/day</p>
+              <p className="text-sm text-on-surface-variant">
+                Goal: {hobby.dailyGoalMinutes} min/day
+              </p>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
-            <Pencil size={14} /> Edit
+        <div className="flex items-center gap-1">
+          <Button variant="outlined" size="sm" onClick={() => setEditOpen(true)}>
+            <Pencil size={15} /> Edit
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setDeleteOpen(true)} aria-label="Delete hobby">
-            <Trash2 size={14} />
-          </Button>
+          <IconButton label="Delete hobby" onClick={() => setDeleteOpen(true)}>
+            <Trash2 size={17} />
+          </IconButton>
         </div>
       </div>
 
@@ -109,11 +115,11 @@ export function HobbyDetailPage() {
           <StatTile label="This week" value={formatDuration(stats.week)} />
           <StatTile label="Today" value={formatDuration(stats.today)} />
           <StatTile
-            label="Streak"
+            label="Current streak"
             value={
               hobby.trackStreak ? (
-                <span className="inline-flex items-center gap-1">
-                  <Flame size={15} className="text-orange-500" /> {stats.current}
+                <span className="inline-flex items-center gap-1.5">
+                  <Flame size={18} className="text-secondary" /> {stats.current}
                 </span>
               ) : (
                 '—'
@@ -125,22 +131,23 @@ export function HobbyDetailPage() {
 
         {hobby.trackStreak && (
           <Card>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <CardTitle>Today&apos;s check-in</CardTitle>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-[15px] font-medium text-on-surface">Today&apos;s check-in</p>
+                <p className="mt-0.5 text-sm text-on-surface-variant">
                   {checkedToday ? 'Marked as done today.' : 'Not marked yet.'}
                 </p>
               </div>
               <button
                 onClick={() => toggleCheck(hobby.id)}
-                className={
+                className={cn(
+                  'inline-flex h-11 items-center gap-2 rounded-full px-6 text-sm font-medium transition-all active:scale-[0.98]',
                   checkedToday
-                    ? 'inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500'
-                    : 'inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
-                }
+                    ? 'bg-primary text-on-primary shadow-e1'
+                    : 'bg-surface-container text-on-surface hover:bg-surface-highest',
+                )}
               >
-                <CalendarCheck2 size={16} />
+                <CalendarCheck2 size={18} />
                 {checkedToday ? 'Done today' : 'Mark done'}
               </button>
             </div>
@@ -168,46 +175,39 @@ export function HobbyDetailPage() {
         </Card>
       </div>
 
-      <HobbyFormModal
-        open={editOpen}
-        hobby={hobby}
-        onClose={() => setEditOpen(false)}
-        onSubmit={async (input: HobbyInput) => {
-          await editHobby(hobby.id, input)
-          setEditOpen(false)
-        }}
-      />
+      {editOpen && (
+        <HobbyFormModal
+          hobby={hobby}
+          onClose={() => setEditOpen(false)}
+          onSubmit={async (input: HobbyInput) => {
+            await editHobby(hobby.id, input)
+            setEditOpen(false)
+          }}
+        />
+      )}
 
       <ConfirmDialog
         open={deleteOpen}
         title="Delete hobby?"
-        message={`This permanently deletes "${hobby.name}" and all its sessions, check-ins, and notes. This cannot be undone.`}
+        message={`This permanently deletes "${hobby.name}" along with all its sessions and check-ins. This cannot be undone.`}
         confirmLabel="Delete forever"
         destructive
         onCancel={() => setDeleteOpen(false)}
         onConfirm={async () => {
           await removeHobby(hobby.id)
-          window.location.hash = '#/hobbies'
+          navigate('/hobbies')
         }}
       />
     </Page>
   )
 }
 
-function StatTile({
-  label,
-  value,
-  sub,
-}: {
-  label: string
-  value: ReactNode
-  sub?: string
-}) {
+function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
-      <div className="text-lg font-semibold text-slate-900 dark:text-slate-100">{value}</div>
-      <div className="text-[11px] uppercase tracking-wide text-slate-400">{label}</div>
-      {sub && <div className="mt-0.5 text-[11px] text-slate-400">{sub}</div>}
+    <div className="rounded-3xl bg-surface-low p-4">
+      <div className="text-xl font-normal text-on-surface">{value}</div>
+      <div className="mt-1 text-xs text-on-surface-variant">{label}</div>
+      {sub && <div className="mt-0.5 text-xs text-on-surface-variant/70">{sub}</div>}
     </div>
   )
 }

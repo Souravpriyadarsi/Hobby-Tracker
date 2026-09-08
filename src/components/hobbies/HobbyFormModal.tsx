@@ -1,46 +1,28 @@
-import { type ReactNode, useEffect, useState } from 'react'
+import { useState } from 'react'
+import { Check } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
-import type { Hobby } from '../../db/types'
-import type { HobbyInput } from '../../db/hobbies'
+import { FieldGroup, TextField } from '../ui/TextField'
+import type { Hobby, HobbyInput } from '../../db/types'
+import { HOBBY_COLORS, HOBBY_ICONS } from '../../lib/palette'
 import { cn } from '../../lib/cn'
 
-const ICONS = ['🎯', '📚', '🎨', '🎸', '🏃', '🧶', '♟️', '📷', '✍️', '🍳', '🌱', '🧩', '🎮', '🏋️']
-const COLORS = [
-  '#6366f1',
-  '#ec4899',
-  '#f97316',
-  '#eab308',
-  '#22c55e',
-  '#14b8a6',
-  '#0ea5e9',
-  '#8b5cf6',
-  '#ef4444',
-  '#64748b',
-]
-
 interface Props {
-  open: boolean
   hobby?: Hobby | null
   onClose: () => void
   onSubmit: (input: HobbyInput) => void | Promise<void>
 }
 
-export function HobbyFormModal({ open, hobby, onClose, onSubmit }: Props) {
-  const [name, setName] = useState('')
-  const [icon, setIcon] = useState(ICONS[0])
-  const [color, setColor] = useState(COLORS[0])
-  const [goal, setGoal] = useState('')
-  const [trackStreak, setTrackStreak] = useState(true)
-
-  useEffect(() => {
-    if (!open) return
-    setName(hobby?.name ?? '')
-    setIcon(hobby?.icon ?? ICONS[0])
-    setColor(hobby?.color ?? COLORS[0])
-    setGoal(hobby?.dailyGoalMinutes ? String(hobby.dailyGoalMinutes) : '')
-    setTrackStreak(hobby?.trackStreak ?? true)
-  }, [open, hobby])
+/**
+ * Callers mount this only while the dialog is open, keyed by hobby id, so the
+ * fields initialise straight from props — no reset-on-open effect needed.
+ */
+export function HobbyFormModal({ hobby, onClose, onSubmit }: Props) {
+  const [name, setName] = useState(hobby?.name ?? '')
+  const [icon, setIcon] = useState<string>(hobby?.icon ?? HOBBY_ICONS[0])
+  const [color, setColor] = useState<string>(hobby?.color ?? HOBBY_COLORS[0])
+  const [goal, setGoal] = useState(hobby?.dailyGoalMinutes ? String(hobby.dailyGoalMinutes) : '')
+  const [trackStreak, setTrackStreak] = useState(hobby?.trackStreak ?? true)
 
   const canSave = name.trim().length > 0
 
@@ -58,12 +40,12 @@ export function HobbyFormModal({ open, hobby, onClose, onSubmit }: Props) {
 
   return (
     <Modal
-      open={open}
+      open
       title={hobby ? 'Edit hobby' : 'New hobby'}
       onClose={onClose}
       footer={
         <>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="text" onClick={onClose}>
             Cancel
           </Button>
           <Button onClick={submit} disabled={!canSave}>
@@ -72,86 +54,74 @@ export function HobbyFormModal({ open, hobby, onClose, onSubmit }: Props) {
         </>
       }
     >
-      <div className="space-y-4">
-        <Field label="Name">
-          <input
-            autoFocus
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && submit()}
-            placeholder="e.g. Guitar practice"
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-800"
-          />
-        </Field>
+      <div className="space-y-5 pb-1">
+        <TextField
+          label="Name"
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && submit()}
+          placeholder="e.g. Guitar practice"
+        />
 
-        <Field label="Icon">
+        <FieldGroup label="Icon">
           <div className="flex flex-wrap gap-1.5">
-            {ICONS.map((i) => (
+            {HOBBY_ICONS.map((i) => (
               <button
                 key={i}
+                type="button"
                 onClick={() => setIcon(i)}
                 className={cn(
-                  'h-9 w-9 rounded-lg text-lg',
+                  'h-10 w-10 rounded-full text-lg transition-colors',
                   icon === i
-                    ? 'bg-indigo-100 ring-2 ring-indigo-500 dark:bg-indigo-500/20'
-                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700',
+                    ? 'bg-primary-container ring-2 ring-primary'
+                    : 'bg-surface-container hover:bg-surface-highest',
                 )}
               >
                 {i}
               </button>
             ))}
           </div>
-        </Field>
+        </FieldGroup>
 
-        <Field label="Color">
-          <div className="flex flex-wrap gap-2">
-            {COLORS.map((c) => (
+        <FieldGroup label="Colour">
+          <div className="flex flex-wrap gap-2.5">
+            {HOBBY_COLORS.map((c) => (
               <button
                 key={c}
+                type="button"
                 onClick={() => setColor(c)}
                 style={{ backgroundColor: c }}
-                className={cn(
-                  'h-7 w-7 rounded-full',
-                  color === c && 'ring-2 ring-offset-2 ring-slate-400 dark:ring-offset-slate-900',
-                )}
-                aria-label={`Color ${c}`}
-              />
+                className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface transition-transform hover:scale-110"
+                aria-label={`Colour ${c}`}
+                aria-pressed={color === c}
+              >
+                {color === c && <Check size={16} strokeWidth={3} className="text-black/60" />}
+              </button>
             ))}
           </div>
-        </Field>
+        </FieldGroup>
 
-        <Field label="Daily goal (minutes, optional)">
-          <input
-            type="number"
-            min={0}
-            value={goal}
-            onChange={(e) => setGoal(e.target.value)}
-            placeholder="e.g. 30"
-            className="w-32 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-800"
-          />
-        </Field>
+        <TextField
+          label="Daily goal (minutes, optional)"
+          type="number"
+          min={0}
+          value={goal}
+          onChange={(e) => setGoal(e.target.value)}
+          placeholder="e.g. 30"
+          className="w-36"
+        />
 
-        <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
+        <label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-surface-container px-4 py-3 text-sm text-on-surface">
           <input
             type="checkbox"
             checked={trackStreak}
             onChange={(e) => setTrackStreak(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 accent-indigo-600"
+            className="h-4 w-4 rounded accent-primary"
           />
-          Track streaks &amp; show on heatmap
+          Track streaks &amp; show on the heatmap
         </label>
       </div>
     </Modal>
-  )
-}
-
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div>
-      <label className="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400">
-        {label}
-      </label>
-      {children}
-    </div>
   )
 }

@@ -3,13 +3,155 @@
 /* Class-based dark mode: toggled by adding `.dark` on <html>. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+  Material 3 style token system on a warm pastel palette.
+  Deliberately avoids purple and dark blue: the neutral ramp is warm
+  (sand/stone rather than slate) and accents are soft mint, coral and butter.
+  Roles are defined as raw vars per theme, then exposed to Tailwind via
+  `@theme inline` so utilities like `bg-surface-container` follow `.dark`.
+*/
+
 :root {
-  color-scheme: light dark;
-  --heatmap-empty: #e9edf3;
+  color-scheme: light;
+
+  /* Accent — pastel mint */
+  --md-primary: #4fae94;
+  --md-on-primary: #ffffff;
+  --md-primary-container: #d3f0e5;
+  --md-on-primary-container: #0c3b30;
+
+  /* Accent — pastel coral */
+  --md-secondary: #e08a68;
+  --md-on-secondary: #ffffff;
+  --md-secondary-container: #fbdfd2;
+  --md-on-secondary-container: #562513;
+
+  /* Accent — pastel butter */
+  --md-tertiary: #cfa646;
+  --md-on-tertiary: #ffffff;
+  --md-tertiary-container: #faeecb;
+  --md-on-tertiary-container: #4a3a0c;
+
+  /* Status */
+  --md-error: #c8635c;
+  --md-on-error: #ffffff;
+  --md-error-container: #fadedb;
+  --md-on-error-container: #571f1b;
+  --md-success: #5aa36f;
+  --md-on-success: #ffffff;
+  --md-success-container: #d9efdd;
+  --md-on-success-container: #14401f;
+
+  /* Warm neutral surfaces */
+  --md-surface: #fdfaf5;
+  --md-surface-container-lowest: #ffffff;
+  --md-surface-container-low: #faf6ef;
+  --md-surface-container: #f4efe6;
+  --md-surface-container-high: #eee8dd;
+  --md-surface-container-highest: #e8e1d5;
+  --md-on-surface: #221e19;
+  --md-on-surface-variant: #6d6459;
+  --md-outline: #a29889;
+  --md-outline-variant: #ded5c8;
+  --md-inverse-surface: #37322b;
+  --md-inverse-on-surface: #f7f1e8;
+
+  --md-heatmap-empty: #ebe4d8;
+  --md-scrim: rgb(34 30 25 / 0.32);
 }
 
-:where(.dark) {
-  --heatmap-empty: #232c3b;
+/*
+  Must out-specify `:root` (0,1,0) — `:where(.dark)` is 0,0,0 and would lose,
+  leaving the app stuck in light mode.
+*/
+:root.dark {
+  color-scheme: dark;
+
+  --md-primary: #7fd3b9;
+  --md-on-primary: #00382c;
+  --md-primary-container: #2b5a4d;
+  --md-on-primary-container: #b8eedc;
+
+  --md-secondary: #f3b092;
+  --md-on-secondary: #4e2313;
+  --md-secondary-container: #6d3c27;
+  --md-on-secondary-container: #fbdfd1;
+
+  --md-tertiary: #e8ce88;
+  --md-on-tertiary: #3f3208;
+  --md-tertiary-container: #5c4a1e;
+  --md-on-tertiary-container: #f8e9bd;
+
+  --md-error: #ef978f;
+  --md-on-error: #55201c;
+  --md-error-container: #71332e;
+  --md-on-error-container: #fadedb;
+  --md-success: #90cfa2;
+  --md-on-success: #0d3a1d;
+  --md-success-container: #2e5539;
+  --md-on-success-container: #d9efdd;
+
+  --md-surface: #16140f;
+  --md-surface-container-lowest: #100e0a;
+  --md-surface-container-low: #1e1b16;
+  --md-surface-container: #23201a;
+  --md-surface-container-high: #2d2922;
+  --md-surface-container-highest: #38332b;
+  --md-on-surface: #ece5da;
+  --md-on-surface-variant: #b8ada0;
+  --md-outline: #7d7466;
+  --md-outline-variant: #3b362e;
+  --md-inverse-surface: #ece5da;
+  --md-inverse-on-surface: #221e19;
+
+  --md-heatmap-empty: #2a251e;
+  --md-scrim: rgb(0 0 0 / 0.5);
+}
+
+@theme inline {
+  --color-primary: var(--md-primary);
+  --color-on-primary: var(--md-on-primary);
+  --color-primary-container: var(--md-primary-container);
+  --color-on-primary-container: var(--md-on-primary-container);
+
+  --color-secondary: var(--md-secondary);
+  --color-on-secondary: var(--md-on-secondary);
+  --color-secondary-container: var(--md-secondary-container);
+  --color-on-secondary-container: var(--md-on-secondary-container);
+
+  --color-tertiary: var(--md-tertiary);
+  --color-on-tertiary: var(--md-on-tertiary);
+  --color-tertiary-container: var(--md-tertiary-container);
+  --color-on-tertiary-container: var(--md-on-tertiary-container);
+
+  --color-error: var(--md-error);
+  --color-on-error: var(--md-on-error);
+  --color-error-container: var(--md-error-container);
+  --color-on-error-container: var(--md-on-error-container);
+
+  --color-success: var(--md-success);
+  --color-on-success: var(--md-on-success);
+  --color-success-container: var(--md-success-container);
+  --color-on-success-container: var(--md-on-success-container);
+
+  --color-surface: var(--md-surface);
+  --color-surface-lowest: var(--md-surface-container-lowest);
+  --color-surface-low: var(--md-surface-container-low);
+  --color-surface-container: var(--md-surface-container);
+  --color-surface-high: var(--md-surface-container-high);
+  --color-surface-highest: var(--md-surface-container-highest);
+  --color-on-surface: var(--md-on-surface);
+  --color-on-surface-variant: var(--md-on-surface-variant);
+
+  --color-outline: var(--md-outline);
+  --color-outline-variant: var(--md-outline-variant);
+  --color-inverse-surface: var(--md-inverse-surface);
+  --color-inverse-on-surface: var(--md-inverse-on-surface);
+
+  /* Material 3 elevation — soft and warm, never a hard drop shadow. */
+  --shadow-e1: 0 1px 2px 0 rgb(60 50 35 / 0.08), 0 1px 3px 1px rgb(60 50 35 / 0.06);
+  --shadow-e2: 0 1px 2px 0 rgb(60 50 35 / 0.09), 0 2px 6px 2px rgb(60 50 35 / 0.07);
+  --shadow-e3: 0 4px 8px 3px rgb(60 50 35 / 0.08), 0 1px 3px 0 rgb(60 50 35 / 0.11);
 }
 
 html,
@@ -20,21 +162,39 @@ body,
 
 body {
   margin: 0;
+  background: var(--md-surface);
+  color: var(--md-on-surface);
   font-family:
+    Roboto,
     system-ui,
     -apple-system,
     "Segoe UI",
-    Roboto,
     sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Let the app own scrolling inside panels, not the window. */
+/* The app owns scrolling inside panels, not the window. */
 #root {
   overflow: hidden;
 }
 
-/* Thin, unobtrusive scrollbars. */
 * {
   scrollbar-width: thin;
+  scrollbar-color: var(--md-outline-variant) transparent;
+}
+
+/* Material-ish focus ring, used everywhere via focus-visible. */
+:focus-visible {
+  outline: 2px solid var(--md-primary);
+  outline-offset: 2px;
+}
+
+/* Date inputs read as dark-on-dark in WebView2 without this. */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(var(--md-picker-invert, 0));
+  cursor: pointer;
+}
+
+:root.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  --md-picker-invert: 1;
 }

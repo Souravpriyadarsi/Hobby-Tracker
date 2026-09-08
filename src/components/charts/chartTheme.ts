@@ -1,27 +1,28 @@
 import { useUiStore } from '../../store/useUiStore'
 
+export { CHART_PALETTE } from '../../lib/palette'
+
+/** Chart chrome colours that track the active theme. */
 export function useChartTheme() {
   const theme = useUiStore((s) => s.theme)
   const dark = theme === 'dark'
   return {
     dark,
-    axis: dark ? '#64748b' : '#94a3b8',
-    grid: dark ? '#1e293b' : '#e2e8f0',
-    tooltipBg: dark ? '#0f172a' : '#ffffff',
-    tooltipBorder: dark ? '#334155' : '#e2e8f0',
-    tooltipText: dark ? '#e2e8f0' : '#0f172a',
+    axis: dark ? '#b8ada0' : '#6d6459',
+    grid: dark ? '#3b362e' : '#ded5c8',
+    tooltipBg: dark ? '#2d2922' : '#ffffff',
+    tooltipBorder: dark ? '#3b362e' : '#ded5c8',
+    tooltipText: dark ? '#ece5da' : '#221e19',
   }
 }
 
-export const CHART_PALETTE = [
-  '#6366f1',
-  '#ec4899',
-  '#f97316',
-  '#22c55e',
-  '#0ea5e9',
-  '#eab308',
-  '#8b5cf6',
-  '#14b8a6',
-  '#ef4444',
-  '#64748b',
-]
+export function tooltipStyle(t: ReturnType<typeof useChartTheme>) {
+  return {
+    background: t.tooltipBg,
+    border: `1px solid ${t.tooltipBorder}`,
+    borderRadius: 12,
+    color: t.tooltipText,
+    fontSize: 12,
+    boxShadow: '0 4px 12px rgb(60 50 35 / 0.12)',
+  }
+}

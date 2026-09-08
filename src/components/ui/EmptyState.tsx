@@ -9,11 +9,15 @@ interface Props {
 
 export function EmptyState({ icon, title, hint, action }: Props) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center dark:border-slate-700">
-      {icon && <div className="mb-3 text-slate-400">{icon}</div>}
-      <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{title}</p>
-      {hint && <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{hint}</p>}
-      {action && <div className="mt-4">{action}</div>}
+    <div className="flex flex-col items-center justify-center rounded-3xl bg-surface-low px-6 py-16 text-center">
+      {icon && (
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
+          {icon}
+        </div>
+      )}
+      <p className="text-lg font-normal text-on-surface">{title}</p>
+      {hint && <p className="mt-1.5 max-w-sm text-sm text-on-surface-variant">{hint}</p>}
+      {action && <div className="mt-6">{action}</div>}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { Pause, Play, Square, Trash2 } from 'lucide-react'
-import { Button } from '../ui/Button'
+import { Button, IconButton } from '../ui/Button'
 import { formatClock } from '../../lib/time'
 import { useTimerControls } from '../../lib/useTimerControls'
 import { useElapsedSeconds, useTimerStore } from '../../store/useTimerStore'
@@ -19,14 +19,14 @@ export function TimerControl({ hobbyId, hobbyColor }: Props) {
   const busyElsewhere = activeHobbyId != null && !isThisHobby
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex items-center justify-between">
+    <div className="rounded-3xl bg-surface-low p-6">
+      <div className="flex flex-wrap items-center justify-between gap-5">
         <div>
-          <p className="text-xs uppercase tracking-wide text-slate-400">
+          <p className="text-xs font-medium tracking-wide text-on-surface-variant">
             {isThisHobby ? (running ? 'Recording' : 'Paused') : 'Timer'}
           </p>
           <p
-            className="mt-1 font-mono text-4xl tabular-nums text-slate-900 dark:text-slate-100"
+            className="mt-1 font-mono text-5xl font-light tabular-nums text-on-surface"
             style={isThisHobby ? { color: hobbyColor } : undefined}
           >
             {formatClock(isThisHobby ? elapsed : 0)}
@@ -35,36 +35,36 @@ export function TimerControl({ hobbyId, hobbyColor }: Props) {
 
         <div className="flex items-center gap-2">
           {!isThisHobby && (
-            <Button onClick={() => start(hobbyId)} disabled={busyElsewhere}>
-              <Play size={16} /> Start
+            <Button size="lg" onClick={() => start(hobbyId)} disabled={busyElsewhere}>
+              <Play size={18} /> Start
             </Button>
           )}
           {isThisHobby && running && (
-            <Button variant="secondary" onClick={pause}>
-              <Pause size={16} /> Pause
+            <Button size="lg" variant="tonal" onClick={pause}>
+              <Pause size={18} /> Pause
             </Button>
           )}
           {isThisHobby && !running && (
-            <Button onClick={resume}>
-              <Play size={16} /> Resume
+            <Button size="lg" onClick={resume}>
+              <Play size={18} /> Resume
             </Button>
           )}
           {isThisHobby && (
             <>
-              <Button variant="primary" onClick={stopAndSave}>
-                <Square size={16} /> Stop &amp; save
+              <Button size="lg" onClick={stopAndSave}>
+                <Square size={17} /> Stop &amp; save
               </Button>
-              <Button variant="ghost" onClick={cancel} aria-label="Discard timer">
-                <Trash2 size={16} />
-              </Button>
+              <IconButton label="Discard this timer" onClick={cancel}>
+                <Trash2 size={17} />
+              </IconButton>
             </>
           )}
         </div>
       </div>
 
       {busyElsewhere && (
-        <p className="mt-3 text-xs text-amber-600 dark:text-amber-400">
-          A timer is already running for another hobby. Stop it first.
+        <p className="mt-4 rounded-2xl bg-tertiary-container px-4 py-2.5 text-xs text-on-tertiary-container">
+          A timer is already running for another hobby. Stop it before starting this one.
         </p>
       )}
     </div>

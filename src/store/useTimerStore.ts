@@ -111,9 +111,12 @@ export function useElapsedSeconds(): number {
   const segmentStart = useTimerStore((s) => s.segmentStart)
   const accumulated = useTimerStore((s) => s.accumulatedSeconds)
   useTick(running)
-  return running && segmentStart != null
-    ? accumulated + (Date.now() - segmentStart) / 1000
-    : accumulated
+  // Intentional: reading the clock inside a store selector makes getSnapshot
+  // unstable and loops useSyncExternalStore. `useTick` drives the re-render,
+  // so the clock read stays here in the component body.
+  // oxlint-disable-next-line react/purity
+  const now = Date.now()
+  return running && segmentStart != null ? accumulated + (now - segmentStart) / 1000 : accumulated
 }
 
 function clear() {

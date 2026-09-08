@@ -69,6 +69,20 @@ CREATE TABLE attachments (
 );
 "#;
 
+/// Writes a backup to a path the user picked in the native save dialog.
+/// A dedicated command avoids having to widen the fs plugin's scope to
+/// arbitrary user-chosen locations.
+#[tauri::command]
+fn write_backup(path: String, contents: String) -> Result<(), String> {
+    std::fs::write(&path, contents).map_err(|e| format!("Couldn't write {path}: {e}"))
+}
+
+/// Reads a backup the user picked in the native open dialog.
+#[tauri::command]
+fn read_backup(path: String) -> Result<String, String> {
+    std::fs::read_to_string(&path).map_err(|e| format!("Couldn't read {path}: {e}"))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let migrations = vec![Migration {
@@ -79,11 +93,13 @@ pub fn run() {
     }];
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations("sqlite:hobby.db", migrations)
                 .build(),
         )
+        .invoke_handler(tauri::generate_handler![write_backup, read_backup])
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(

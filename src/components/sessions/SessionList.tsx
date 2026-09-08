@@ -3,7 +3,7 @@ import { formatDistanceToNow, parseISO } from 'date-fns'
 import { Check, Pencil, Trash2, X } from 'lucide-react'
 import type { Session } from '../../db/types'
 import { formatDuration, parseDurationInput } from '../../lib/time'
-import { prettyDate, dayKey } from '../../lib/date'
+import { dayKey, prettyDate } from '../../lib/date'
 import { useDataStore } from '../../store/useDataStore'
 
 interface Props {
@@ -13,10 +13,12 @@ interface Props {
 
 export function SessionList({ sessions, showHobby }: Props) {
   if (sessions.length === 0) {
-    return <p className="py-6 text-center text-sm text-slate-400">No sessions logged yet.</p>
+    return (
+      <p className="py-8 text-center text-sm text-on-surface-variant">No sessions logged yet.</p>
+    )
   }
   return (
-    <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+    <ul className="divide-y divide-outline-variant">
       {sessions.map((s) => (
         <SessionRow key={s.id} session={s} label={showHobby?.(s.hobbyId)} />
       ))}
@@ -40,14 +42,24 @@ function SessionRow({ session, label }: { session: Session; label?: string }) {
     setEditing(false)
   }
 
+  function startEditing() {
+    setDuration(formatDuration(session.durationSeconds))
+    setNote(session.note)
+    setEditing(true)
+  }
+
+  const inputCls =
+    'rounded-lg border border-outline-variant bg-surface-lowest px-2 py-1 text-sm text-on-surface outline-none focus:border-primary'
+
   return (
-    <li className="flex items-center gap-3 py-2.5 text-sm">
-      <div className="w-20 shrink-0 font-mono tabular-nums text-slate-700 dark:text-slate-200">
+    <li className="flex items-center gap-3 py-3 text-sm">
+      <div className="w-20 shrink-0 font-mono tabular-nums text-on-surface">
         {editing ? (
           <input
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
-            className="w-16 rounded border border-slate-300 bg-white px-1.5 py-0.5 dark:border-slate-600 dark:bg-slate-800"
+            className={`w-18 ${inputCls}`}
+            aria-label="Duration"
           />
         ) : (
           formatDuration(session.durationSeconds)
@@ -60,36 +72,57 @@ function SessionRow({ session, label }: { session: Session; label?: string }) {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Note"
-            className="w-full rounded border border-slate-300 bg-white px-2 py-0.5 dark:border-slate-600 dark:bg-slate-800"
+            className={`w-full ${inputCls}`}
+            aria-label="Note"
           />
         ) : (
           <div className="truncate">
-            {label && <span className="mr-2 text-slate-400">{label}</span>}
-            <span className="text-slate-600 dark:text-slate-300">{session.note || '—'}</span>
+            {label && (
+              <span className="mr-2 rounded-full bg-surface-container px-2 py-0.5 text-xs text-on-surface-variant">
+                {label}
+              </span>
+            )}
+            <span className="text-on-surface">{session.note || '—'}</span>
           </div>
         )}
-        <div className="text-xs text-slate-400" title={prettyDate(dayKey(session.startedAt))}>
+        <div className="mt-0.5 text-xs text-on-surface-variant" title={prettyDate(dayKey(session.startedAt))}>
           {formatDistanceToNow(parseISO(session.startedAt), { addSuffix: true })}
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="flex shrink-0 items-center">
         {editing ? (
           <>
-            <button onClick={save} className="rounded p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10" aria-label="Save">
-              <Check size={15} />
+            <button
+              onClick={save}
+              className="rounded-full p-2 text-primary transition-colors hover:bg-primary/12"
+              aria-label="Save session"
+            >
+              <Check size={16} />
             </button>
-            <button onClick={() => setEditing(false)} className="rounded p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Cancel">
-              <X size={15} />
+            <button
+              onClick={() => setEditing(false)}
+              className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-on-surface/8"
+              aria-label="Cancel edit"
+            >
+              <X size={16} />
             </button>
           </>
         ) : (
           <>
-            <button onClick={() => setEditing(true)} className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800" aria-label="Edit session">
-              <Pencil size={15} />
+            <button
+              onClick={startEditing}
+              className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-on-surface/8"
+              aria-label="Edit session"
+            >
+              <Pencil size={16} />
             </button>
-            <button onClick={() => removeSession(session.id)} className="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10" aria-label="Delete session">
-              <Trash2 size={15} />
+            <button
+              onClick={() => removeSession(session.id)}
+              className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-error/15 hover:text-error"
+              aria-label="Delete session"
+            >
+              <Trash2 size={16} />
             </button>
           </>
         )}

@@ -1,35 +1,6 @@
-// Row shapes as stored in SQLite. Integers are used for booleans (0/1).
-
-export interface HobbyRow {
-  id: string
-  name: string
-  icon: string
-  color: string
-  daily_goal_minutes: number | null
-  track_streak: number
-  archived: number
-  sort_order: number
-  created_at: string
-}
-
-export interface SessionRow {
-  id: string
-  hobby_id: string
-  started_at: string
-  ended_at: string
-  duration_seconds: number
-  note: string
-  created_at: string
-}
-
-export interface DailyCheckRow {
-  id: string
-  hobby_id: string
-  date: string
-  created_at: string
-}
-
-// App-facing models (booleans as booleans).
+// ---------------------------------------------------------------------------
+// App-facing models
+// ---------------------------------------------------------------------------
 
 export interface Hobby {
   id: string
@@ -58,6 +29,88 @@ export interface DailyCheck {
   hobbyId: string
   date: string
   createdAt: string
+}
+
+// ---------------------------------------------------------------------------
+// Inputs
+// ---------------------------------------------------------------------------
+
+export interface HobbyInput {
+  name: string
+  icon: string
+  color: string
+  dailyGoalMinutes: number | null
+  trackStreak: boolean
+}
+
+export type HobbyPatch = Partial<HobbyInput> & { archived?: boolean }
+
+export interface SessionInput {
+  hobbyId: string
+  startedAt: string
+  endedAt: string
+  durationSeconds: number
+  note?: string
+}
+
+export interface SessionPatch {
+  durationSeconds?: number
+  note?: string
+  startedAt?: string
+}
+
+// ---------------------------------------------------------------------------
+// Backup / restore
+// ---------------------------------------------------------------------------
+
+export const SNAPSHOT_VERSION = 1
+
+export interface Snapshot {
+  app: 'hobby-tracker'
+  version: number
+  exportedAt: string
+  hobbies: Hobby[]
+  sessions: Session[]
+  checks: DailyCheck[]
+}
+
+export interface DataBundle {
+  hobbies: Hobby[]
+  sessions: Session[]
+  checks: DailyCheck[]
+}
+
+// ---------------------------------------------------------------------------
+// SQLite row shapes (integers stand in for booleans)
+// ---------------------------------------------------------------------------
+
+export interface HobbyRow {
+  id: string
+  name: string
+  icon: string
+  color: string
+  daily_goal_minutes: number | null
+  track_streak: number
+  archived: number
+  sort_order: number
+  created_at: string
+}
+
+export interface SessionRow {
+  id: string
+  hobby_id: string
+  started_at: string
+  ended_at: string
+  duration_seconds: number
+  note: string
+  created_at: string
+}
+
+export interface DailyCheckRow {
+  id: string
+  hobby_id: string
+  date: string
+  created_at: string
 }
 
 export function hobbyFromRow(r: HobbyRow): Hobby {

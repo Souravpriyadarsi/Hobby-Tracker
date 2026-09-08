@@ -15,31 +15,26 @@ export function GlobalTimerWidget() {
   if (!hobbyId || !hobby) return null
 
   return (
-    <div className="flex items-center gap-3 rounded-lg bg-slate-100 py-1 pl-3 pr-1.5 dark:bg-slate-800">
+    <div className="flex items-center gap-2.5 rounded-full bg-primary-container py-1 pl-3.5 pr-1.5 text-on-primary-container">
       <span
-        className="h-2 w-2 shrink-0 rounded-full"
-        style={{ backgroundColor: hobby.color, opacity: running ? 1 : 0.4 }}
+        className="h-2 w-2 shrink-0 rounded-full bg-current"
+        style={{ opacity: running ? 1 : 0.35 }}
       />
-      <Link
-        to={`/hobby/${hobby.id}`}
-        className="max-w-40 truncate text-sm font-medium text-slate-700 hover:underline dark:text-slate-200"
-      >
+      <Link to={`/hobby/${hobby.id}`} className="max-w-40 truncate text-sm font-medium hover:underline">
         {hobby.icon} {hobby.name}
       </Link>
-      <span className="font-mono text-sm tabular-nums text-slate-600 dark:text-slate-300">
-        {formatClock(elapsed)}
-      </span>
-      <div className="flex items-center gap-1">
+      <span className="font-mono text-sm tabular-nums">{formatClock(elapsed)}</span>
+      <div className="flex items-center">
         <button
           onClick={running ? pause : resume}
-          className="rounded-md p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700"
+          className="rounded-full p-2 transition-colors hover:bg-on-primary-container/10"
           aria-label={running ? 'Pause timer' : 'Resume timer'}
         >
           {running ? <Pause size={15} /> : <Play size={15} />}
         </button>
         <button
           onClick={stopAndSave}
-          className="rounded-md p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700"
+          className="rounded-full p-2 transition-colors hover:bg-on-primary-container/10"
           aria-label="Stop and save timer"
         >
           <Square size={15} />
