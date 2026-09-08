@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: toggled by adding `.dark` on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light dark;
+  --heatmap-empty: #e9edf3;
+}
+
+:where(.dark) {
+  --heatmap-empty: #232c3b;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Let the app own scrolling inside panels, not the window. */
+#root {
+  overflow: hidden;
+}
+
+/* Thin, unobtrusive scrollbars. */
+* {
+  scrollbar-width: thin;
+}
